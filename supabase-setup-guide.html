@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guida Configurazione Supabase — FagiAPP Cantieri</title>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-dark: #c2410c;
+      --orange-light: #fff7ed;
+      --green: #22c55e;
+      --green-dark: #15803d;
+      --green-light: #f0fdf4;
+      --blue: #3b82f6;
+      --blue-dark: #1d4ed8;
+      --blue-light: #eff6ff;
+      --red: #ef4444;
+      --red-light: #fef2f2;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white;
+      padding: 48px 32px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top, rgba(249,115,22,.15) 0%, transparent 70%);
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(249,115,22,.2);
+      border: 1px solid rgba(249,115,22,.4);
+      color: #fb923c;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    header h1 {
+      font-size: clamp(26px, 5vw, 40px);
+      font-weight: 800;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    header h1 span { color: #f97316; }
+    header p {
+      font-size: 16px;
+      color: rgba(255,255,255,.7);
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* NAV */
+    nav {
+      background: white;
+      border-bottom: 2px solid var(--gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 32px;
+    }
+    nav ul {
+      display: flex;
+      gap: 4px;
+      list-style: none;
+      overflow-x: auto;
+      padding: 12px 0;
+      scrollbar-width: none;
+    }
+    nav ul::-webkit-scrollbar { display: none; }
+    nav a {
+      display: block;
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--gray-600);
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all .15s;
+    }
+    nav a:hover { background: var(--orange-light); color: var(--orange-dark); }
+
+    /* MAIN */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* SECTIONS */
+    section { margin-bottom: 56px; }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 3px solid var(--orange);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .num {
+      background: var(--orange);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 24px 0 10px;
+    }
+
+    p { margin-bottom: 12px; color: var(--gray-700); }
+
+    /* CALLOUT */
+    .callout {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 16px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .callout-body { flex: 1; }
+    .callout-body strong { display: block; margin-bottom: 4px; font-size: 14px; }
+    .callout-body p, .callout-body li { font-size: 14px; margin-bottom: 4px; }
+    .callout.info { background: var(--blue-light); border-left: 4px solid var(--blue); }
+    .callout.info .callout-icon { color: var(--blue); }
+    .callout.warning { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .callout.warning .callout-icon { color: #d97706; }
+    .callout.success { background: var(--green-light); border-left: 4px solid var(--green); }
+    .callout.success .callout-icon { color: var(--green-dark); }
+    .callout.danger { background: var(--red-light); border-left: 4px solid var(--red); }
+    .callout.danger .callout-icon { color: var(--red); }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 16px; }
+    .step {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      background: var(--orange);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .step-content strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--gray-900); }
+    .step-content p, .step-content li { font-size: 14px; color: var(--gray-600); }
+
+    /* CODE BLOCKS */
+    .code-wrap { position: relative; margin: 16px 0; }
+    .code-label {
+      position: absolute;
+      top: 0; left: 0;
+      background: var(--gray-700);
+      color: var(--gray-300);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: var(--radius) 0 var(--radius) 0;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: var(--gray-600);
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .15s;
+    }
+    .copy-btn:hover { background: var(--orange); }
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 48px 20px 20px;
+      border-radius: var(--radius);
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.7;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      border: 1px solid #313244;
+    }
+    /* Syntax coloring */
+    .kw { color: #cba6f7; }   /* keyword */
+    .cm { color: #6c7086; font-style: italic; } /* comment */
+    .str { color: #a6e3a1; }  /* string */
+    .num { color: #fab387; }  /* number */
+    .fn { color: #89b4fa; }   /* function */
+    .ty { color: #f38ba8; }   /* type */
+    .op { color: #89dceb; }   /* operator/punctuation */
+
+    code {
+      background: var(--gray-100);
+      color: var(--orange-dark);
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--gray-200);
+    }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+    }
+    thead { background: var(--gray-800); color: white; }
+    th { padding: 10px 14px; text-align: left; font-weight: 700; font-size: 12px; letter-spacing: .5px; }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--gray-50); }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .tag-pk { background: #fef3c7; color: #92400e; }
+    .tag-fk { background: #dbeafe; color: #1e40af; }
+    .tag-req { background: #fce7f3; color: #9d174d; }
+    .tag-opt { background: #f0fdf4; color: #166534; }
+    .tag-idx { background: #f5f3ff; color: #5b21b6; }
+
+    /* DIAGRAM */
+    .diagram {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 16px 0;
+      font-family: monospace;
+      font-size: 13px;
+      overflow-x: auto;
+    }
+    .db-table {
+      display: inline-block;
+      border: 2px solid var(--gray-300);
+      border-radius: 8px;
+      margin: 8px;
+      vertical-align: top;
+      min-width: 160px;
+    }
+    .db-table-header {
+      background: var(--gray-800);
+      color: white;
+      padding: 8px 14px;
+      font-weight: 700;
+      border-radius: 6px 6px 0 0;
+      font-size: 13px;
+    }
+    .db-table-body { padding: 8px 14px; }
+    .db-field { padding: 2px 0; color: var(--gray-600); font-size: 12px; }
+    .db-field .field-pk { color: var(--orange); font-weight: 700; }
+    .db-field .field-fk { color: var(--blue); }
+
+    /* CHECKLIST */
+    .checklist { list-style: none; }
+    .checklist li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--gray-700);
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist li::before {
+      content: '☐';
+      font-size: 16px;
+      color: var(--gray-400);
+      flex-shrink: 0;
+    }
+
+    /* PILL */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .pill-orange { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .pill-blue { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .pill-green { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: var(--gray-600);
+      font-size: 13px;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    @media (max-width: 600px) {
+      main { padding: 24px 16px 60px; }
+      header { padding: 32px 16px 28px; }
+      nav { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Guida Tecnica</div>
+  <h1>Configura <span>Supabase</span> per FagiAPP</h1>
+  <p>Schema completo del database, RLS policies, dati iniziali e configurazione per l'app cantieri FAGITANA.</p>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#panoramica">Panoramica</a></li>
+    <li><a href="#progetto">1. Crea Progetto</a></li>
+    <li><a href="#schema">2. Schema DB</a></li>
+    <li><a href="#rls">3. Sicurezza RLS</a></li>
+    <li><a href="#seed">4. Dati Iniziali</a></li>
+    <li><a href="#auth">5. Autenticazione</a></li>
+    <li><a href="#app">6. Collega App</a></li>
+    <li><a href="#verifica">7. Verifica</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- PANORAMICA -->
+  <section id="panoramica">
+    <h2><span class="num">→</span> Panoramica del Database</h2>
+    <p>L'app gestisce <strong>cantieri edili</strong>, registrazioni giornaliere con presenze operai, materiali e mezzi. Il database si compone di <strong>6 tabelle</strong> più il sistema di autenticazione di Supabase.</p>
+
+    <div class="diagram">
+      <div class="db-table">
+        <div class="db-table-header">auth.users</div>
+        <div class="db-table-body">
+          <div class="db-field"><span class="field-pk">id</span> uuid</div>
+          <div class="db-field">email text</div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-header">operai</div>
+        <div class="db-table-body">
+          <div class="db-field"><span class="field-pk">id</span> uuid PK</div>
+          <div class="db-field">nome text</div>
+          <div class="db-field">cognome text</div>
+          <div class="db-field">attivo boolean</div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-header">cantieri</div>
+        <div class="db-table-body">
+          <div class="db-field"><span class="field-pk">id</span> uuid PK</div>
+          <div class="db-field">nome text</div>
+          <div class="db-field">comune text</div>
+          <div class="db-field">indirizzo text</div>
+          <div class="db-field">fase text</div>
+          <div class="db-field">stato text</div>
+          <div class="db-field">note text</div>
+        </div>
+      </div>
+      <br>
+      <div class="db-table">
+        <div class="db-table-header">giornate</div>
+        <div class="db-table-body">
+          <div class="db-field"><span class="field-pk">id</span> uuid PK</div>
+          <div class="db-field"><span class="field-fk">cantiere_id</span> → cantieri</div>
+          <div class="db-field"><span class="field-fk">created_by</span> → users</div>
+          <div class="db-field">data date</div>
+          <div class="db-field">meteo text</div>
+          <div class="db-field">ora_inizio time</div>
+          <div class="db-field">ora_fine time</div>
+          <div class="db-field">fase text</div>
+          <div class="db-field">avanzamento int</div>
+          <div class="db-field">note_attivita text</div>
+          <div class="db-field">note_problemi text</div>
+          <div class="db-field">note_prossimi text</div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-header">presenze</div>
+        <div class="db-table-body">
+          <div class="db-field"><span class="field-pk">id</span> uuid PK</div>
+          <div class="db-field"><span class="field-fk">giornata_id</span> → giornate</div>
+          <div class="db-field"><span class="field-fk">operaio_id</span> → operai</div>
+          <div class="db-field">stato text</div>
+          <div class="db-field">ora_entrata time</div>
+          <div class="db-field">ora_uscita time</div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-header">materiali</div>
+        <div class="db-table-body">
+          <div class="db-field"><span class="field-pk">id</span> uuid PK</div>
+          <div class="db-field"><span class="field-fk">giornata_id</span> → giornate</div>
+          <div class="db-field">nome text</div>
+          <div class="db-field">quantita text</div>
+        </div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-header">mezzi</div>
+        <div class="db-table-body">
+          <div class="db-field"><span class="field-pk">id</span> uuid PK</div>
+          <div class="db-field"><span class="field-fk">giornata_id</span> → giornate</div>
+          <div class="db-field">nome text</div>
+          <div class="db-field">utilizzo text</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <div class="callout-body">
+        <strong>Attualmente l'app usa localStorage</strong>
+        <p>Il file <code>src/lib/supabase.js</code> contiene un mock locale. Questa guida ti spiega come creare il vero database e sostituire il mock con il client Supabase reale.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 1: CREA PROGETTO -->
+  <section id="progetto">
+    <h2><span class="num">1</span> Crea il Progetto Supabase</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Vai su supabase.com e accedi</strong>
+          <p>Crea un account gratuito se non ce l'hai. Il piano Free supporta fino a 500 MB di database e 50.000 richieste/mese — più che sufficiente per questa app.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Crea un nuovo progetto</strong>
+          <p>Clicca <em>New Project</em>, scegli un'organizzazione, inserisci:</p>
+          <ul style="margin-left:16px; color: var(--gray-600); font-size:14px;">
+            <li><strong>Name:</strong> <code>fagitana-cantieri</code></li>
+            <li><strong>Database Password:</strong> crea una password forte e salvala</li>
+            <li><strong>Region:</strong> <em>West EU (Ireland)</em> — più vicina all'Italia</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Attendi la creazione (circa 1-2 minuti)</strong>
+          <p>Supabase provisionerà il database PostgreSQL. Una volta pronto, vai in <em>Project Settings → API</em> e copia: <code>Project URL</code> e <code>anon public key</code>. Ti serviranno al passo 6.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2: SCHEMA -->
+  <section id="schema">
+    <h2><span class="num">2</span> Crea le Tabelle del Database</h2>
+    <p>Vai su <strong>SQL Editor</strong> nel menu laterale di Supabase ed esegui questo script completo. Crea tutte le tabelle, i constraint, gli indici e i trigger necessari.</p>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Esegui in SQL Editor, non in Table Editor</strong>
+        <p>Copia l'intero blocco SQL, incollalo nel SQL Editor e premi <em>Run</em> (Ctrl+Enter). Le istruzioni vanno eseguite in ordine.</p>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <span class="code-label">SQL — Schema Completo</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre id="sql-schema">
+<span class="cm">-- ============================================================
+--  FagiAPP Cantieri — Schema Database Supabase
+--  Eseguire intero blocco nel SQL Editor
+-- ============================================================</span>
+
+<span class="cm">-- Abilita l'estensione UUID (già presente su Supabase)</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> <span class="str">"uuid-ossp"</span>;
+
+<span class="cm">-- ============================================================
+--  TABELLA: operai
+--  Lista dei 7 lavoratori fissi dell'azienda
+-- ============================================================</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> operai (
+  id          <span class="ty">uuid</span>        <span class="kw">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  nome        <span class="ty">text</span>        <span class="kw">NOT NULL</span>,
+  cognome     <span class="ty">text</span>        <span class="kw">NOT NULL</span>,
+  attivo      <span class="ty">boolean</span>     <span class="kw">NOT NULL DEFAULT</span> <span class="kw">true</span>,
+  created_at  <span class="ty">timestamptz</span> <span class="kw">NOT NULL DEFAULT</span> now()
+);
+
+<span class="cm">-- ============================================================
+--  TABELLA: cantieri
+--  Cantieri edili dell'azienda
+-- ============================================================</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> cantieri (
+  id          <span class="ty">uuid</span>        <span class="kw">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  nome        <span class="ty">text</span>        <span class="kw">NOT NULL</span>,
+  comune      <span class="ty">text</span>,
+  indirizzo   <span class="ty">text</span>,
+  fase        <span class="ty">text</span>        <span class="kw">CHECK</span> (fase <span class="kw">IN</span> (
+                <span class="str">'Muratura'</span>, <span class="str">'Carpenteria'</span>, <span class="str">'Rifinitura'</span>,
+                <span class="str">'Impianti'</span>, <span class="str">'Copertura'</span>, <span class="str">'Fondamenta'</span>,
+                <span class="str">'Intonaco'</span>, <span class="str">'Pavimentazione'</span>
+              )),
+  stato       <span class="ty">text</span>        <span class="kw">NOT NULL DEFAULT</span> <span class="str">'attivo'</span>
+                <span class="kw">CHECK</span> (stato <span class="kw">IN</span> (<span class="str">'attivo'</span>, <span class="str">'completato'</span>, <span class="str">'sospeso'</span>)),
+  note        <span class="ty">text</span>,
+  created_by  <span class="ty">uuid</span>        <span class="kw">REFERENCES</span> auth.users(id) <span class="kw">ON DELETE SET NULL</span>,
+  created_at  <span class="ty">timestamptz</span> <span class="kw">NOT NULL DEFAULT</span> now()
+);
+
+<span class="cm">-- Indice per filtrare cantieri per stato (attivo/completato)</span>
+<span class="kw">CREATE INDEX</span> idx_cantieri_stato <span class="kw">ON</span> cantieri(stato);
+
+<span class="cm">-- ============================================================
+--  TABELLA: giornate
+--  Registrazione giornaliera per ogni cantiere
+-- ============================================================</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> giornate (
+  id                <span class="ty">uuid</span>        <span class="kw">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  cantiere_id       <span class="ty">uuid</span>        <span class="kw">NOT NULL REFERENCES</span> cantieri(id) <span class="kw">ON DELETE CASCADE</span>,
+  data              <span class="ty">date</span>        <span class="kw">NOT NULL</span>,
+  meteo             <span class="ty">text</span>,
+  ora_inizio        <span class="ty">time</span>        <span class="kw">DEFAULT</span> <span class="str">'07:00'</span>,
+  ora_fine          <span class="ty">time</span>        <span class="kw">DEFAULT</span> <span class="str">'17:00'</span>,
+  ora_pausa_inizio  <span class="ty">time</span>        <span class="kw">DEFAULT</span> <span class="str">'12:00'</span>,
+  ora_pausa_fine    <span class="ty">time</span>        <span class="kw">DEFAULT</span> <span class="str">'13:00'</span>,
+  fase              <span class="ty">text</span>        <span class="kw">CHECK</span> (fase <span class="kw">IN</span> (
+                      <span class="str">'Muratura'</span>, <span class="str">'Carpenteria'</span>, <span class="str">'Rifinitura'</span>,
+                      <span class="str">'Impianti'</span>, <span class="str">'Copertura'</span>, <span class="str">'Fondamenta'</span>,
+                      <span class="str">'Intonaco'</span>, <span class="str">'Pavimentazione'</span>
+                    )),
+  avanzamento       <span class="ty">integer</span>     <span class="kw">DEFAULT</span> <span class="num">0</span>
+                      <span class="kw">CHECK</span> (avanzamento <span class="kw">BETWEEN</span> <span class="num">0</span> <span class="kw">AND</span> <span class="num">100</span>),
+  note_attivita     <span class="ty">text</span>,
+  note_problemi     <span class="ty">text</span>,
+  note_prossimi     <span class="ty">text</span>,
+  created_by        <span class="ty">uuid</span>        <span class="kw">REFERENCES</span> auth.users(id) <span class="kw">ON DELETE SET NULL</span>,
+  created_at        <span class="ty">timestamptz</span> <span class="kw">NOT NULL DEFAULT</span> now(),
+  <span class="cm">-- Una sola registrazione per cantiere per giorno</span>
+  <span class="kw">UNIQUE</span> (cantiere_id, data)
+);
+
+<span class="cm">-- Indici per le query più frequenti</span>
+<span class="kw">CREATE INDEX</span> idx_giornate_cantiere   <span class="kw">ON</span> giornate(cantiere_id);
+<span class="kw">CREATE INDEX</span> idx_giornate_data       <span class="kw">ON</span> giornate(data <span class="kw">DESC</span>);
+<span class="kw">CREATE INDEX</span> idx_giornate_data_range <span class="kw">ON</span> giornate(data, cantiere_id);
+
+<span class="cm">-- ============================================================
+--  TABELLA: presenze
+--  Presenze operai per ogni giornata
+-- ============================================================</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> presenze (
+  id           <span class="ty">uuid</span>        <span class="kw">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  giornata_id  <span class="ty">uuid</span>        <span class="kw">NOT NULL REFERENCES</span> giornate(id) <span class="kw">ON DELETE CASCADE</span>,
+  operaio_id   <span class="ty">uuid</span>        <span class="kw">NOT NULL REFERENCES</span> operai(id) <span class="kw">ON DELETE RESTRICT</span>,
+  stato        <span class="ty">text</span>        <span class="kw">NOT NULL DEFAULT</span> <span class="str">'presente'</span>
+                 <span class="kw">CHECK</span> (stato <span class="kw">IN</span> (<span class="str">'presente'</span>, <span class="str">'parziale'</span>, <span class="str">'assente'</span>)),
+  ora_entrata  <span class="ty">time</span>,
+  ora_uscita   <span class="ty">time</span>,
+  note         <span class="ty">text</span>,
+  <span class="cm">-- Un operaio una sola presenza per giornata</span>
+  <span class="kw">UNIQUE</span> (giornata_id, operaio_id)
+);
+
+<span class="kw">CREATE INDEX</span> idx_presenze_giornata <span class="kw">ON</span> presenze(giornata_id);
+<span class="kw">CREATE INDEX</span> idx_presenze_operaio  <span class="kw">ON</span> presenze(operaio_id);
+
+<span class="cm">-- ============================================================
+--  TABELLA: materiali
+--  Materiali utilizzati per ogni giornata
+-- ============================================================</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> materiali (
+  id           <span class="ty">uuid</span>        <span class="kw">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  giornata_id  <span class="ty">uuid</span>        <span class="kw">NOT NULL REFERENCES</span> giornate(id) <span class="kw">ON DELETE CASCADE</span>,
+  nome         <span class="ty">text</span>        <span class="kw">NOT NULL</span>,
+  quantita     <span class="ty">text</span>,
+  created_at   <span class="ty">timestamptz</span> <span class="kw">NOT NULL DEFAULT</span> now()
+);
+
+<span class="kw">CREATE INDEX</span> idx_materiali_giornata <span class="kw">ON</span> materiali(giornata_id);
+
+<span class="cm">-- ============================================================
+--  TABELLA: mezzi
+--  Mezzi e attrezzature per ogni giornata
+-- ============================================================</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> mezzi (
+  id           <span class="ty">uuid</span>        <span class="kw">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  giornata_id  <span class="ty">uuid</span>        <span class="kw">NOT NULL REFERENCES</span> giornate(id) <span class="kw">ON DELETE CASCADE</span>,
+  nome         <span class="ty">text</span>        <span class="kw">NOT NULL</span>,
+  utilizzo     <span class="ty">text</span>,
+  created_at   <span class="ty">timestamptz</span> <span class="kw">NOT NULL DEFAULT</span> now()
+);
+
+<span class="kw">CREATE INDEX</span> idx_mezzi_giornata <span class="kw">ON</span> mezzi(giornata_id);
+
+<span class="cm">-- ============================================================
+--  TRIGGER: aggiorna updated_at automaticamente su giornate
+-- ============================================================</span>
+<span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">handle_updated_at</span>()
+<span class="kw">RETURNS TRIGGER AS</span> $$
+<span class="kw">BEGIN</span>
+  NEW.updated_at = now();
+  <span class="kw">RETURN</span> NEW;
+<span class="kw">END</span>;
+$$ <span class="kw">LANGUAGE</span> plpgsql;
+
+<span class="cm">-- Aggiungi colonna updated_at e trigger su giornate</span>
+<span class="kw">ALTER TABLE</span> giornate <span class="kw">ADD COLUMN IF NOT EXISTS</span> updated_at <span class="ty">timestamptz</span>;
+
+<span class="kw">CREATE OR REPLACE TRIGGER</span> giornate_updated_at
+  <span class="kw">BEFORE UPDATE ON</span> giornate
+  <span class="kw">FOR EACH ROW EXECUTE FUNCTION</span> <span class="fn">handle_updated_at</span>();
+      </pre>
+    </div>
+
+    <h3>Riepilogo delle tabelle create</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Tabella</th><th>Scopo</th><th>Righe attese</th><th>Note chiave</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>operai</strong></td>
+            <td>7 lavoratori fissi dell'azienda</td>
+            <td>~7 (statica)</td>
+            <td>Solo lettura in produzione</td>
+          </tr>
+          <tr>
+            <td><strong>cantieri</strong></td>
+            <td>Cantieri attivi e completati</td>
+            <td>Decine</td>
+            <td>stato: attivo/completato/sospeso</td>
+          </tr>
+          <tr>
+            <td><strong>giornate</strong></td>
+            <td>Registrazione giornaliera</td>
+            <td>Centinaia/anno</td>
+            <td>UNIQUE(cantiere_id, data)</td>
+          </tr>
+          <tr>
+            <td><strong>presenze</strong></td>
+            <td>Presenza operaio per giornata</td>
+            <td>~7 per giornata</td>
+            <td>CASCADE delete con giornata</td>
+          </tr>
+          <tr>
+            <td><strong>materiali</strong></td>
+            <td>Materiali usati per giornata</td>
+            <td>Variabile</td>
+            <td>CASCADE delete con giornata</td>
+          </tr>
+          <tr>
+            <td><strong>mezzi</strong></td>
+            <td>Attrezzature per giornata</td>
+            <td>Variabile</td>
+            <td>CASCADE delete con giornata</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- STEP 3: RLS -->
+  <section id="rls">
+    <h2><span class="num">3</span> Configura la Sicurezza (RLS)</h2>
+    <p>Row Level Security garantisce che solo gli utenti autenticati possano leggere e scrivere i dati. Esegui questo script <strong>dopo</strong> quello dello schema.</p>
+
+    <div class="callout danger">
+      <span class="callout-icon">🔒</span>
+      <div class="callout-body">
+        <strong>Importante: senza RLS i dati sono pubblici</strong>
+        <p>Supabase di default espone le tabelle pubblicamente via API. L'RLS è obbligatorio per proteggere i dati dell'azienda.</p>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <span class="code-label">SQL — Row Level Security</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre>
+<span class="cm">-- ============================================================
+--  RLS POLICIES — Solo utenti autenticati hanno accesso
+-- ============================================================</span>
+
+<span class="cm">-- Abilita RLS su tutte le tabelle</span>
+<span class="kw">ALTER TABLE</span> operai     <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">ALTER TABLE</span> cantieri   <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">ALTER TABLE</span> giornate   <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">ALTER TABLE</span> presenze   <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">ALTER TABLE</span> materiali  <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">ALTER TABLE</span> mezzi      <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+
+<span class="cm">-- ------------------------------------------------
+--  OPERAI: solo lettura per utenti autenticati
+--  (gli operai non cambiano — li gestisce solo un admin)
+-- ------------------------------------------------</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"operai_select"</span> <span class="kw">ON</span> operai
+  <span class="kw">FOR SELECT TO authenticated USING</span> (<span class="kw">true</span>);
+
+<span class="cm">-- ------------------------------------------------
+--  CANTIERI: lettura e scrittura per autenticati
+-- ------------------------------------------------</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"cantieri_select"</span> <span class="kw">ON</span> cantieri
+  <span class="kw">FOR SELECT TO authenticated USING</span> (<span class="kw">true</span>);
+
+<span class="kw">CREATE POLICY</span> <span class="str">"cantieri_insert"</span> <span class="kw">ON</span> cantieri
+  <span class="kw">FOR INSERT TO authenticated
+  WITH CHECK</span> (auth.uid() <span class="kw">IS NOT NULL</span>);
+
+<span class="kw">CREATE POLICY</span> <span class="str">"cantieri_update"</span> <span class="kw">ON</span> cantieri
+  <span class="kw">FOR UPDATE TO authenticated USING</span> (<span class="kw">true</span>);
+
+<span class="cm">-- ------------------------------------------------
+--  GIORNATE: lettura e scrittura per autenticati
+-- ------------------------------------------------</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"giornate_select"</span> <span class="kw">ON</span> giornate
+  <span class="kw">FOR SELECT TO authenticated USING</span> (<span class="kw">true</span>);
+
+<span class="kw">CREATE POLICY</span> <span class="str">"giornate_insert"</span> <span class="kw">ON</span> giornate
+  <span class="kw">FOR INSERT TO authenticated
+  WITH CHECK</span> (auth.uid() <span class="kw">IS NOT NULL</span>);
+
+<span class="kw">CREATE POLICY</span> <span class="str">"giornate_update"</span> <span class="kw">ON</span> giornate
+  <span class="kw">FOR UPDATE TO authenticated USING</span> (<span class="kw">true</span>);
+
+<span class="kw">CREATE POLICY</span> <span class="str">"giornate_delete"</span> <span class="kw">ON</span> giornate
+  <span class="kw">FOR DELETE TO authenticated USING</span> (<span class="kw">true</span>);
+
+<span class="cm">-- ------------------------------------------------
+--  PRESENZE, MATERIALI, MEZZI: lettura e scrittura
+-- ------------------------------------------------</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"presenze_all"</span> <span class="kw">ON</span> presenze
+  <span class="kw">FOR ALL TO authenticated USING</span> (<span class="kw">true</span>) <span class="kw">WITH CHECK</span> (<span class="kw">true</span>);
+
+<span class="kw">CREATE POLICY</span> <span class="str">"materiali_all"</span> <span class="kw">ON</span> materiali
+  <span class="kw">FOR ALL TO authenticated USING</span> (<span class="kw">true</span>) <span class="kw">WITH CHECK</span> (<span class="kw">true</span>);
+
+<span class="kw">CREATE POLICY</span> <span class="str">"mezzi_all"</span> <span class="kw">ON</span> mezzi
+  <span class="kw">FOR ALL TO authenticated USING</span> (<span class="kw">true</span>) <span class="kw">WITH CHECK</span> (<span class="kw">true</span>);
+      </pre>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body">
+        <strong>Strategia scelta: tutti gli autenticati vedono tutto</strong>
+        <p>L'app è ad uso interno dell'azienda. Ogni utente con account può vedere e modificare tutti i cantieri — non serve un isolamento per-utente. Se in futuro vuoi che ogni utente veda solo le proprie giornate, sostituisci <code>USING (true)</code> con <code>USING (created_by = auth.uid())</code> nella policy di giornate.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4: SEED DATA -->
+  <section id="seed">
+    <h2><span class="num">4</span> Inserisci i Dati Iniziali</h2>
+    <p>L'app ha <strong>7 operai fissi</strong> hardcodati nel frontend. Devi inserirli nel database con gli stessi ID che il frontend si aspetta, oppure lasciare che vengano generati automaticamente e aggiornare il codice di mapping.</p>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>Approccio consigliato: inserisci gli operai e usa gli UUID generati</strong>
+        <p>Il codice in <code>NuovaGiornata.jsx</code> carica già gli operai dal DB con <code>supabase.from('operai').select('id,nome,cognome')</code> e li mappa per nome/cognome. Non devi hardcodare gli UUID.</p>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <span class="code-label">SQL — Seed: Operai FAGITANA</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre>
+<span class="cm">-- ============================================================
+--  SEED: Inserimento dei 7 operai dell'azienda
+--  Esegui una sola volta dopo la creazione dello schema
+-- ============================================================</span>
+
+<span class="kw">INSERT INTO</span> operai (nome, cognome, attivo) <span class="kw">VALUES</span>
+  (<span class="str">'Alessandro'</span>, <span class="str">'Tomasi'</span>,      <span class="kw">true</span>),
+  (<span class="str">'Damiano'</span>,    <span class="str">'Giovannini'</span>, <span class="kw">true</span>),
+  (<span class="str">'Damiano'</span>,    <span class="str">'Gottardi'</span>,   <span class="kw">true</span>),
+  (<span class="str">'Marco'</span>,      <span class="str">'Gottardi'</span>,   <span class="kw">true</span>),
+  (<span class="str">'Emanuele'</span>,   <span class="str">'Paoli'</span>,      <span class="kw">true</span>),
+  (<span class="str">'Cristian'</span>,   <span class="str">'Casagranda'</span>, <span class="kw">true</span>),
+  (<span class="str">'Fabrizio'</span>,   <span class="str">'Leonardelli'</span>,<span class="kw">true</span>)
+<span class="kw">ON CONFLICT DO NOTHING</span>;
+
+<span class="cm">-- Verifica l'inserimento</span>
+<span class="kw">SELECT</span> id, nome || <span class="str">' '</span> || cognome <span class="kw">AS</span> nome_completo, attivo
+<span class="kw">FROM</span> operai
+<span class="kw">ORDER BY</span> cognome, nome;
+      </pre>
+    </div>
+
+    <h3>Cantiere di esempio (opzionale)</h3>
+    <div class="code-wrap">
+      <span class="code-label">SQL — Seed: Cantiere di test</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre>
+<span class="cm">-- Cantiere di esempio per testare l'app</span>
+<span class="kw">INSERT INTO</span> cantieri (nome, comune, indirizzo, fase, stato, note) <span class="kw">VALUES</span>
+  (<span class="str">'Villa Bianchi'</span>, <span class="str">'Baselga di Pinè'</span>, <span class="str">'Via Roma 14'</span>,
+   <span class="str">'Muratura'</span>, <span class="str">'attivo'</span>, <span class="str">'Cantiere di test per verifica sistema'</span>)
+<span class="kw">RETURNING</span> id, nome;
+      </pre>
+    </div>
+  </section>
+
+  <!-- STEP 5: AUTH -->
+  <section id="auth">
+    <h2><span class="num">5</span> Configura l'Autenticazione</h2>
+    <p>L'app usa <strong>Email + Password</strong> via Supabase Auth. Devi creare gli utenti manualmente dalla dashboard (non c'è form di registrazione pubblica — corretto per un'app aziendale interna).</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Vai su Authentication → Users nella dashboard Supabase</strong>
+          <p>Clicca il pulsante <em>"Invite user"</em> oppure <em>"Add user"</em>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Crea l'utente amministratore</strong>
+          <p>Inserisci email e password per ogni persona che dovrà accedere all'app. Esempio: <code>caposquadra@fagitana.it</code></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Configura le impostazioni email (opzionale)</strong>
+          <p>In <em>Authentication → Email Templates</em> puoi personalizzare le email di conferma. Per un'app interna, puoi anche disabilitare la conferma email in <em>Authentication → Providers → Email → Confirm email</em>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>Imposta il Site URL</strong>
+          <p>In <em>Authentication → URL Configuration</em>, imposta il <strong>Site URL</strong> all'URL dove è deployata la tua app (es. <code>https://fagitana.netlify.app</code> oppure <code>http://localhost:5173</code> in sviluppo).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Non serve "Disable email confirmation" per il primo test</strong>
+        <p>Se crei l'utente tramite <em>Add user → Create new user</em> (non Invite), Supabase lo crea già confermato. Puoi usare subito email e password per il login nell'app.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 6: COLLEGA APP -->
+  <section id="app">
+    <h2><span class="num">6</span> Collega l'App al Database Reale</h2>
+    <p>Ora devi sostituire il mock localStorage con il vero client Supabase. Ci sono due file da modificare.</p>
+
+    <h3>6.1 — Crea il file .env con le credenziali</h3>
+    <p>Il progetto ha già un <code>.env.example</code>. Crea il file <code>.env</code> nella cartella <code>fagitana-cantieri-app/fagitana-app/</code>:</p>
+
+    <div class="code-wrap">
+      <span class="code-label">.env — Variabili d'ambiente</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre>
+<span class="cm"># Copia questi valori da: Supabase Dashboard → Project Settings → API</span>
+VITE_SUPABASE_URL=https://xxxxxxxxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      </pre>
+    </div>
+
+    <div class="callout danger">
+      <span class="callout-icon">🔐</span>
+      <div class="callout-body">
+        <strong>Non committare mai il file .env su Git</strong>
+        <p>Verifica che <code>.env</code> sia in <code>.gitignore</code>. Usa solo la <strong>anon key</strong> (pubblica), mai la <strong>service_role key</strong> (admin) nel frontend.</p>
+      </div>
+    </div>
+
+    <h3>6.2 — Sostituisci il client Supabase mock</h3>
+    <p>Apri il file <code>src/lib/supabase.js</code> e <strong>sostituisci tutto il contenuto</strong> con questo:</p>
+
+    <div class="code-wrap">
+      <span class="code-label">src/lib/supabase.js — Client Reale</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre>
+<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@supabase/supabase-js'</span>
+
+<span class="kw">const</span> supabaseUrl  = <span class="fn">import.meta.env</span>.VITE_SUPABASE_URL
+<span class="kw">const</span> supabaseKey  = <span class="fn">import.meta.env</span>.VITE_SUPABASE_ANON_KEY
+
+<span class="kw">export const</span> supabase = <span class="fn">createClient</span>(supabaseUrl, supabaseKey)
+      </pre>
+    </div>
+
+    <h3>6.3 — Installa il pacchetto Supabase</h3>
+    <p>Apri il terminale nella cartella <code>fagitana-cantieri-app/fagitana-app/</code> e installa il client:</p>
+
+    <div class="code-wrap">
+      <span class="code-label">Terminale</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre>
+<span class="fn">npm install</span> @supabase/supabase-js
+      </pre>
+    </div>
+
+    <h3>6.4 — Aggiorna l'AuthContext</h3>
+    <p>Il file <code>src/contexts/AuthContext.jsx</code> probabilmente usa il mock. Verifica che importi da <code>../lib/supabase</code> e che usi i metodi reali. Ecco come dovrebbe essere:</p>
+
+    <div class="code-wrap">
+      <span class="code-label">src/contexts/AuthContext.jsx — Verifica queste funzioni</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre>
+<span class="cm">// Queste chiamate sono già compatibili con il client Supabase reale
+// Non devi cambiare nulla nel componente, solo nel file lib/supabase.js</span>
+
+<span class="cm">// Login — già corretto nel codice attuale</span>
+<span class="kw">const</span> { error } = <span class="kw">await</span> supabase.auth.<span class="fn">signInWithPassword</span>({ email, password })
+
+<span class="cm">// Sessione — già corretto</span>
+<span class="kw">const</span> { data: { session } } = <span class="kw">await</span> supabase.auth.<span class="fn">getSession</span>()
+
+<span class="cm">// Listener — già corretto</span>
+supabase.auth.<span class="fn">onAuthStateChange</span>((_event, session) => {
+  setUser(session?.user ?? <span class="kw">null</span>)
+})
+      </pre>
+    </div>
+
+    <h3>6.5 — Aggiorna NuovaGiornata per il mapping operai reale</h3>
+    <p>Il form presenze usa nomi hardcodati. Con il DB reale, gli operai vengono caricati dinamicamente — questo è già gestito nell'app ma verifica che il mapping nome/cognome → id funzioni correttamente una volta sostituito il mock.</p>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body">
+        <strong>Le query non cambiano — API identica</strong>
+        <p>Il mock è stato progettato per imitare esattamente l'API Supabase. Cambiando solo <code>src/lib/supabase.js</code>, tutte le query in <code>Dashboard.jsx</code>, <code>Calendario.jsx</code>, <code>Cantieri.jsx</code> e <code>NuovaGiornata.jsx</code> funzioneranno senza modifiche.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 7: VERIFICA -->
+  <section id="verifica">
+    <h2><span class="num">7</span> Verifica e Collaudo</h2>
+    <p>Usa queste query SQL per verificare che tutto funzioni correttamente dal SQL Editor di Supabase.</p>
+
+    <div class="code-wrap">
+      <span class="code-label">SQL — Query di verifica</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+      <pre>
+<span class="cm">-- 1. Verifica operai inseriti</span>
+<span class="kw">SELECT</span> id, nome, cognome, attivo <span class="kw">FROM</span> operai <span class="kw">ORDER BY</span> cognome;
+
+<span class="cm">-- 2. Verifica cantieri</span>
+<span class="kw">SELECT</span> id, nome, comune, stato, created_at <span class="kw">FROM</span> cantieri;
+
+<span class="cm">-- 3. Conta giornate per cantiere</span>
+<span class="kw">SELECT</span>
+  c.nome <span class="kw">AS</span> cantiere,
+  <span class="fn">COUNT</span>(g.id) <span class="kw">AS</span> giornate_registrate,
+  <span class="fn">MAX</span>(g.data) <span class="kw">AS</span> ultima_giornata
+<span class="kw">FROM</span> cantieri c
+<span class="kw">LEFT JOIN</span> giornate g <span class="kw">ON</span> g.cantiere_id = c.id
+<span class="kw">GROUP BY</span> c.id, c.nome
+<span class="kw">ORDER BY</span> c.nome;
+
+<span class="cm">-- 4. Dettaglio ultima giornata con presenze</span>
+<span class="kw">SELECT</span>
+  g.data,
+  c.nome <span class="kw">AS</span> cantiere,
+  g.meteo,
+  g.fase,
+  g.avanzamento || <span class="str">'%'</span> <span class="kw">AS</span> avanzamento,
+  o.nome || <span class="str">' '</span> || o.cognome <span class="kw">AS</span> operaio,
+  p.stato
+<span class="kw">FROM</span> giornate g
+<span class="kw">JOIN</span> cantieri c <span class="kw">ON</span> c.id = g.cantiere_id
+<span class="kw">LEFT JOIN</span> presenze p <span class="kw">ON</span> p.giornata_id = g.id
+<span class="kw">LEFT JOIN</span> operai o <span class="kw">ON</span> o.id = p.operaio_id
+<span class="kw">ORDER BY</span> g.data <span class="kw">DESC</span>, o.cognome
+<span class="kw">LIMIT</span> <span class="num">20</span>;
+
+<span class="cm">-- 5. Verifica RLS attivo su tutte le tabelle</span>
+<span class="kw">SELECT</span>
+  schemaname,
+  tablename,
+  rowsecurity <span class="kw">AS</span> rls_enabled
+<span class="kw">FROM</span> pg_tables
+<span class="kw">WHERE</span> schemaname = <span class="str">'public'</span>
+  <span class="kw">AND</span> tablename <span class="kw">IN</span> (<span class="str">'operai'</span>,<span class="str">'cantieri'</span>,<span class="str">'giornate'</span>,<span class="str">'presenze'</span>,<span class="str">'materiali'</span>,<span class="str">'mezzi'</span>);
+      </pre>
+    </div>
+
+    <h3>Checklist finale</h3>
+    <ul class="checklist">
+      <li>Schema SQL eseguito senza errori nel SQL Editor</li>
+      <li>RLS SQL eseguito — tutte e 6 le tabelle hanno <code>rls_enabled = true</code></li>
+      <li>7 operai inseriti con la query di seed</li>
+      <li>Almeno un utente creato in Authentication → Users</li>
+      <li>File <code>.env</code> creato con URL e anon key corretti</li>
+      <li>Pacchetto <code>@supabase/supabase-js</code> installato</li>
+      <li>File <code>src/lib/supabase.js</code> sostituito con il client reale</li>
+      <li>Login nell'app funzionante con l'utente creato</li>
+      <li>Creazione di un cantiere funzionante dalla pagina Cantieri</li>
+      <li>Salvataggio di una giornata funzionante dalla pagina Nuova Giornata</li>
+      <li>Verifica che il Calendario mostri la giornata salvata</li>
+    </ul>
+
+    <div class="callout info" style="margin-top:20px;">
+      <span class="callout-icon">🚀</span>
+      <div class="callout-body">
+        <strong>Per il deploy in produzione</strong>
+        <p>Se deploi su Netlify o Vercel, aggiungi <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> nelle variabili d'ambiente del servizio di hosting, non nel file <code>.env</code> (che non va committato). In <em>Supabase → Authentication → URL Configuration</em> aggiungi l'URL di produzione all'elenco dei redirect URL.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>FagiAPP Cantieri &mdash; Guida Supabase &mdash; Generata per FAGITANA</p>
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-wrap').querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copiato!';
+      btn.style.background = '#22c55e';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = '';
+      }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\stefano.cestari\\\\Personale\\\\progettoFagitana\\\\App\\\\FagiAPP\\\\fagitana-cantieri-app\\\\fagitana-app\\\\src\" -Recurse -Directory | Select-Object -First 30 | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\stefano.cestari\\\\Personale\\\\progettoFagitana\\\\App\\\\FagiAPP\\\\fagitana-cantieri-app\\\\fagitana-app\\\\src\" -Recurse | Select-Object -First 30 | ForEach-Object { $_.FullName })",
+      "Bash(npm run *)"
+    ]
+  }
+}
