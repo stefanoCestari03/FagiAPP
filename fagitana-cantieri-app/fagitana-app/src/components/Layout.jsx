@@ -10,11 +10,13 @@ const NAV = [
 ]
 
 export default function Layout() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, isAdmin } = useAuth()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const initials = user?.email?.slice(0, 2).toUpperCase() || 'AT'
+  const rawName = user?.user_metadata?.nome || user?.email?.split('.')[0] || ''
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1)
+  const initials = displayName.slice(0, 2).toUpperCase() || 'FA'
 
   const handleSignOut = async () => {
     await signOut()
@@ -36,7 +38,8 @@ export default function Layout() {
         <div className="topbar-right">
           <div className="topbar-user">
             <div className="avatar">{initials}</div>
-            <span style={{ display: 'none' }}>{user?.email}</span>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>{displayName}</span>
+            {isAdmin && <span style={{ fontSize: 10, fontWeight: 700, background: '#f97316', color: 'white', padding: '2px 6px', borderRadius: 4 }}>ADMIN</span>}
           </div>
           <button className="btn-logout" onClick={handleSignOut}>Esci</button>
         </div>
