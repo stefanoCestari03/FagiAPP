@@ -2,17 +2,6 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-const OPERAI = [
-  'Alessandro Tomasi',
-  'Damiano Giovannini',
-  'Damiano Gottardi',
-  'Marco Gottardi',
-  'Emanuele Paoli',
-  'Cristian Casagranda',
-  'Fabrizio Leonardelli',
-]
-
-const FASI = ['Muratura','Carpenteria','Rifinitura','Impianti','Copertura','Fondamenta','Intonaco','Pavimentazione']
 const METEO_OPT = ['☀️ Sole','⛅ Nuvoloso','🌧️ Pioggia','❄️ Neve','💨 Vento forte']
 
 function Toast({ msg, onDone }) {
@@ -28,39 +17,44 @@ export default function NuovaGiornata() {
   const today = new Date().toISOString().split('T')[0]
 
   // FORM STATE
-  const [cantieri, setCantieri] = useState([])
+  const [cantieri, setCantieri]     = useState([])
+  const [operaiDB, setOperaiDB]     = useState([])
   const [cantiereId, setCantiereId] = useState('')
-  const [data, setData] = useState(today)
-  const [fase, setFase] = useState('')
-  const [meteo, setMeteo] = useState('☀️ Sole')
-  const [oraInizio, setOraInizio] = useState('07:00')
-  const [oraFine, setOraFine] = useState('17:00')
-  const [oraPausaI, setOraPausaI] = useState('12:00')
-  const [oraPausaF, setOraPausaF] = useState('13:00')
+  const [data, setData]             = useState(today)
+  const [fase, setFase]             = useState('')
+  const [meteo, setMeteo]           = useState('☀️ Sole')
+  const [oraInizio, setOraInizio]   = useState('07:00')
+  const [oraFine, setOraFine]       = useState('17:00')
+  const [oraPausaI, setOraPausaI]   = useState('12:00')
+  const [oraPausaF, setOraPausaF]   = useState('13:00')
   const [avanzamento, setAvanzamento] = useState(0)
-  const [noteAttivita, setNoteAttivita] = useState('')
-  const [noteProblemi, setNoteProblemi] = useState('')
-  const [noteProssimi, setNoteProssimi] = useState('')
+  const [noteAttivita, setNoteAttivita]   = useState('')
+  const [noteProblemi, setNoteProblemi]   = useState('')
+  const [noteProssimi, setNoteProssimi]   = useState('')
 
-  const [presenze, setPresenze] = useState(
-    OPERAI.map(n => ({ nome: n, stato: 'presente', entrata: '07:00', uscita: '17:00' }))
-  )
+  // PRESENZE STATE — lista vuota, si riempie selezionando
+  const [presenze, setPresenze]         = useState([])
+  const [selectedOperaioId, setSelectedOperaioId] = useState('')
+  const [jollyNome, setJollyNome]       = useState('')
+
   const [materiali, setMateriali] = useState([])
-  const [mezzi, setMezzi] = useState([])
-  const [newMat, setNewMat] = useState('')
-  const [newMezzo, setNewMezzo] = useState('')
+  const [mezzi, setMezzi]         = useState([])
+  const [newMat, setNewMat]       = useState('')
+  const [newMezzo, setNewMezzo]   = useState('')
 
-  const [saving, setSaving] = useState(false)
-  const [toast, setToast] = useState(null)
+  const [saving, setSaving]   = useState(false)
+  const [toast, setToast]     = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Load cantieri
+  // ── Carica cantieri e operai ──────────────────────────────────────────────
   useEffect(() => {
     supabase.from('cantieri').select('id,nome,comune').eq('stato','attivo').order('nome')
-      .then(({ data }) => { setCantieri(data || []) })
+      .then(({ data }) => setCantieri(data || []))
+    supabase.from('operai').select('id,nome,cognome').eq('attivo', true).order('cognome')
+      .then(({ data }) => setOperaiDB(data || []))
   }, [])
 
-  // Load existing giornata if editing
+  // ── Carica giornata esistente (modalità modifica) ─────────────────────────
   const loadGiornata = useCallback(async () => {
     if (!id) { setLoading(false); return }
     const { data: g } = await supabase
@@ -82,61 +76,88 @@ export default function NuovaGiornata() {
       setNoteProssimi(g.note_prossimi || '')
       setMateriali(g.materiali?.map(m => ({ id: m.id, nome: m.nome, quantita: m.quantita || '' })) || [])
       setMezzi(g.mezzi?.map(m => ({ id: m.id, nome: m.nome, utilizzo: m.utilizzo || '' })) || [])
-      // Map presenze
-      const presenzeMap = {}
-      g.presenze?.forEach(p => {
-        const nome = `${p.operai?.nome} ${p.operai?.cognome}`
-        presenzeMap[nome] = {
-          nome, stato: p.stato,
-          entrata: p.ora_entrata?.slice(0,5) || '07:00',
-          uscita: p.ora_uscita?.slice(0,5) || '17:00',
-        }
-      })
-      setPresenze(OPERAI.map(n => presenzeMap[n] || { nome: n, stato: 'presente', entrata: '07:00', uscita: '17:00' }))
+      setPresenze(g.presenze?.map(p => ({
+        operaio_id: p.operaio_id || null,
+        nome: p.nome_jolly || `${p.operai?.nome} ${p.operai?.cognome}`,
+        stato: p.stato,
+        entrata: p.ora_entrata?.slice(0,5) || '07:00',
+        uscita:  p.ora_uscita?.slice(0,5)  || '17:00',
+        isJolly: !p.operaio_id,
+      })) || [])
     }
     setLoading(false)
   }, [id])
 
   useEffect(() => { loadGiornata() }, [loadGiornata])
 
-  const updatePresenza = (i, field, value) => {
-    setPresenze(prev => prev.map((p,idx) => idx===i ? {...p,[field]:value} : p))
+  // ── Aggiungi operaio dal dropdown ─────────────────────────────────────────
+  const addOperaioDaLista = () => {
+    if (!selectedOperaioId) return
+    if (presenze.find(p => p.operaio_id === selectedOperaioId)) {
+      setToast('⚠️ Operaio già aggiunto')
+      return
+    }
+    const op = operaiDB.find(o => o.id === selectedOperaioId)
+    if (!op) return
+    setPresenze(prev => [...prev, {
+      operaio_id: op.id,
+      nome: `${op.nome} ${op.cognome}`,
+      stato: 'presente',
+      entrata: oraInizio,
+      uscita: oraFine,
+      isJolly: false,
+    }])
+    setSelectedOperaioId('')
   }
 
+  // ── Aggiungi operaio jolly ────────────────────────────────────────────────
+  const addJolly = () => {
+    if (!jollyNome.trim()) return
+    setPresenze(prev => [...prev, {
+      operaio_id: null,
+      nome: jollyNome.trim(),
+      stato: 'presente',
+      entrata: oraInizio,
+      uscita: oraFine,
+      isJolly: true,
+    }])
+    setJollyNome('')
+  }
+
+  const removePresenza = (i) => setPresenze(prev => prev.filter((_, idx) => idx !== i))
+
+  const updatePresenza = (i, field, value) =>
+    setPresenze(prev => prev.map((p, idx) => idx === i ? { ...p, [field]: value } : p))
+
+  // ── Materiali / Mezzi ─────────────────────────────────────────────────────
   const addMateriale = () => {
     if (!newMat.trim()) return
     setMateriali(prev => [...prev, { nome: newMat.trim(), quantita: '' }])
     setNewMat('')
   }
-
   const addMezzo = () => {
     if (!newMezzo.trim()) return
     setMezzi(prev => [...prev, { nome: newMezzo.trim(), utilizzo: '' }])
     setNewMezzo('')
   }
 
+  // ── Ore effettive ─────────────────────────────────────────────────────────
   const calcOreEffettive = () => {
     try {
-      const [hi, mi] = oraInizio.split(':').map(Number)
-      const [hf, mf] = oraFine.split(':').map(Number)
+      const [hi, mi]   = oraInizio.split(':').map(Number)
+      const [hf, mf]   = oraFine.split(':').map(Number)
       const [hpi, mpi] = oraPausaI.split(':').map(Number)
       const [hpf, mpf] = oraPausaF.split(':').map(Number)
-      const totMin = (hf*60+mf) - (hi*60+mi)
-      const pausaMin = (hpf*60+mpf) - (hpi*60+mpi)
-      const eff = totMin - pausaMin
+      const eff = ((hf*60+mf) - (hi*60+mi)) - ((hpf*60+mpf) - (hpi*60+mpi))
       return `${Math.floor(eff/60)}h ${eff%60>0?eff%60+'m':''}`
     } catch { return '–' }
   }
 
+  // ── Salva ─────────────────────────────────────────────────────────────────
   const handleSave = async () => {
     if (!cantiereId) { setToast('⚠️ Seleziona un cantiere'); return }
     setSaving(true)
     try {
-      // Get operai IDs from DB
-      const { data: operaiDB } = await supabase.from('operai').select('id,nome,cognome').eq('attivo',true)
-      const operaiMap = {}
-      operaiDB?.forEach(o => { operaiMap[`${o.nome} ${o.cognome}`] = o.id })
-
       let giornataId = id
       const giornataPayload = {
         cantiere_id: cantiereId, data, fase, meteo,
@@ -148,7 +169,6 @@ export default function NuovaGiornata() {
 
       if (isEdit) {
         await supabase.from('giornate').update(giornataPayload).eq('id', id)
-        // Delete existing related records
         await Promise.all([
           supabase.from('presenze').delete().eq('giornata_id', id),
           supabase.from('materiali').delete().eq('giornata_id', id),
@@ -160,19 +180,17 @@ export default function NuovaGiornata() {
         giornataId = newG.id
       }
 
-      // Insert presenze
-      const presenzePayload = presenze
-        .filter(p => operaiMap[p.nome])
-        .map(p => ({
-          giornata_id: giornataId,
-          operaio_id: operaiMap[p.nome],
-          stato: p.stato,
-          ora_entrata: p.stato !== 'assente' ? p.entrata : null,
-          ora_uscita: p.stato !== 'assente' ? p.uscita : null,
-        }))
+      const presenzePayload = presenze.map(p => ({
+        giornata_id:  giornataId,
+        operaio_id:   p.isJolly ? null : p.operaio_id,
+        nome_jolly:   p.isJolly ? p.nome : null,
+        stato:        p.stato,
+        ora_entrata:  p.stato !== 'assente' ? p.entrata : null,
+        ora_uscita:   p.stato !== 'assente' ? p.uscita  : null,
+      }))
 
       await Promise.all([
-        supabase.from('presenze').insert(presenzePayload),
+        presenze.length > 0 && supabase.from('presenze').insert(presenzePayload),
         materiali.length > 0 && supabase.from('materiali').insert(
           materiali.map(m => ({ giornata_id: giornataId, nome: m.nome, quantita: m.quantita || null }))
         ),
@@ -191,6 +209,8 @@ export default function NuovaGiornata() {
     }
   }
 
+  // Operai disponibili nel dropdown (escludi già aggiunti)
+  const operaiDisponibili = operaiDB.filter(o => !presenze.find(p => p.operaio_id === o.id))
   const presentiCount = presenze.filter(p => p.stato !== 'assente').length
 
   if (loading) return <div className="loading"><div className="spinner" /></div>
@@ -231,10 +251,13 @@ export default function NuovaGiornata() {
               </div>
               <div className="form-row">
                 <label className="form-label">Fase Lavori</label>
-                <select className="form-select" value={fase} onChange={e => setFase(e.target.value)}>
-                  <option value="">– Fase –</option>
-                  {FASI.map(f => <option key={f}>{f}</option>)}
-                </select>
+                <input
+                  className="form-input"
+                  type="text"
+                  placeholder="Es: Muratura, Rifinitura…"
+                  value={fase}
+                  onChange={e => setFase(e.target.value)}
+                />
               </div>
             </div>
             <div className="form-row">
@@ -288,53 +311,104 @@ export default function NuovaGiornata() {
       <div className="card">
         <div className="card-header">
           <div className="card-icon">👷</div>
-          <div><div className="card-title">Presenze & Orari Operai</div><div className="card-subtitle">Registra ogni operaio</div></div>
-          <div className="badge badge-green" style={{ marginLeft:'auto' }}>{presentiCount}/7 Presenti</div>
+          <div><div className="card-title">Presenze & Orari Operai</div><div className="card-subtitle">Seleziona dalla lista o aggiungi un jolly</div></div>
+          <div className="badge badge-green" style={{ marginLeft:'auto' }}>{presentiCount}/{presenze.length} Presenti</div>
         </div>
         <div className="card-body">
-          <div className="worker-table">
-            <div className="worker-header">
-              <span></span>
-              <span>Operaio</span>
-              <span>Entrata</span>
-              <span>Uscita</span>
-              <span>Stato</span>
-              <span></span>
-            </div>
-            {presenze.map((p, i) => (
-              <div key={p.nome} className="worker-row-item">
-                <div className={`worker-num${p.stato==='assente'?' absent':''}`}>{i+1}</div>
-                <div style={{ fontWeight:600, fontSize:13 }}>{p.nome}</div>
-                <input
-                  className="form-input"
-                  type="time"
-                  value={p.entrata}
-                  disabled={p.stato==='assente'}
-                  onChange={e => updatePresenza(i,'entrata',e.target.value)}
-                  style={p.stato==='assente'?{opacity:.4}:{}}
-                />
-                <input
-                  className="form-input"
-                  type="time"
-                  value={p.uscita}
-                  disabled={p.stato==='assente'}
-                  onChange={e => updatePresenza(i,'uscita',e.target.value)}
-                  style={p.stato==='assente'?{opacity:.4}:{}}
-                />
+
+          {/* Selettori */}
+          <div style={{ display:'flex', gap:12, marginBottom:16, flexWrap:'wrap' }}>
+            {/* Dropdown operai DB */}
+            <div style={{ flex:1, minWidth:200 }}>
+              <label className="form-label">Operaio dalla lista</label>
+              <div style={{ display:'flex', gap:8 }}>
                 <select
                   className="form-select"
-                  value={p.stato}
-                  onChange={e => updatePresenza(i,'stato',e.target.value)}
-                  style={{ background: p.stato==='assente'?'#fff0f0': p.stato==='parziale'?'#fff8e1':'#f0fef0' }}
+                  value={selectedOperaioId}
+                  onChange={e => setSelectedOperaioId(e.target.value)}
                 >
-                  <option value="presente">✅ Presente</option>
-                  <option value="parziale">⚡ Parziale</option>
-                  <option value="assente">❌ Assente</option>
+                  <option value="">— Seleziona operaio —</option>
+                  {operaiDisponibili.map(o => (
+                    <option key={o.id} value={o.id}>{o.nome} {o.cognome}</option>
+                  ))}
                 </select>
-                <div />
+                <button className="btn btn-primary btn-sm" onClick={addOperaioDaLista}>＋</button>
               </div>
-            ))}
+            </div>
+
+            {/* Jolly */}
+            <div style={{ flex:1, minWidth:200 }}>
+              <label className="form-label">Operaio jolly (esterno)</label>
+              <div style={{ display:'flex', gap:8 }}>
+                <input
+                  className="form-input"
+                  placeholder="Nome e cognome…"
+                  value={jollyNome}
+                  onChange={e => setJollyNome(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addJolly()}
+                />
+                <button className="btn btn-secondary btn-sm" onClick={addJolly}>＋</button>
+              </div>
+            </div>
           </div>
+
+          {/* Lista presenze */}
+          {presenze.length === 0 ? (
+            <div style={{ textAlign:'center', color:'#999', fontSize:13, padding:'24px 0' }}>
+              Nessun operaio aggiunto. Seleziona dalla lista o inserisci un jolly.
+            </div>
+          ) : (
+            <div className="worker-table">
+              <div className="worker-header">
+                <span></span>
+                <span>Operaio</span>
+                <span>Entrata</span>
+                <span>Uscita</span>
+                <span>Stato</span>
+                <span></span>
+              </div>
+              {presenze.map((p, i) => (
+                <div key={i} className="worker-row-item">
+                  <div className={`worker-num${p.stato==='assente'?' absent':''}`}>{i+1}</div>
+                  <div style={{ fontWeight:600, fontSize:13 }}>
+                    {p.nome}
+                    {p.isJolly && <span style={{ marginLeft:6, fontSize:10, background:'#f0f0f0', color:'#888', padding:'1px 5px', borderRadius:3 }}>jolly</span>}
+                  </div>
+                  <input
+                    className="form-input"
+                    type="time"
+                    value={p.entrata}
+                    disabled={p.stato==='assente'}
+                    onChange={e => updatePresenza(i,'entrata',e.target.value)}
+                    style={p.stato==='assente'?{opacity:.4}:{}}
+                  />
+                  <input
+                    className="form-input"
+                    type="time"
+                    value={p.uscita}
+                    disabled={p.stato==='assente'}
+                    onChange={e => updatePresenza(i,'uscita',e.target.value)}
+                    style={p.stato==='assente'?{opacity:.4}:{}}
+                  />
+                  <select
+                    className="form-select"
+                    value={p.stato}
+                    onChange={e => updatePresenza(i,'stato',e.target.value)}
+                    style={{ background: p.stato==='assente'?'#fff0f0': p.stato==='parziale'?'#fff8e1':'#f0fef0' }}
+                  >
+                    <option value="presente">✅ Presente</option>
+                    <option value="parziale">⚡ Parziale</option>
+                    <option value="assente">❌ Assente</option>
+                  </select>
+                  <button
+                    onClick={() => removePresenza(i)}
+                    style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#ccc', padding:'0 4px' }}
+                    title="Rimuovi"
+                  >✕</button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
-const FASI = ['Muratura','Carpenteria','Rifinitura','Impianti','Copertura','Fondamenta','Intonaco','Pavimentazione']
 
 function Toast({ msg, onDone }) {
   useEffect(() => { const t = setTimeout(onDone, 3000); return () => clearTimeout(t) }, [onDone])
@@ -91,10 +90,12 @@ export default function Cantieri() {
               </div>
               <div className="form-row">
                 <label className="form-label">Fase Iniziale</label>
-                <select className="form-select" value={form.fase} onChange={e => setForm(f=>({...f,fase:e.target.value}))}>
-                  <option value="">– Seleziona –</option>
-                  {FASI.map(fa => <option key={fa}>{fa}</option>)}
-                </select>
+                <input
+                  className="form-input"
+                  placeholder="Es: Fondamenta, Muratura…"
+                  value={form.fase}
+                  onChange={e => setForm(f=>({...f,fase:e.target.value}))}
+                />
               </div>
             </div>
             <div className="form-row">
