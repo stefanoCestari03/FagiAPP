@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
               'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']
@@ -11,6 +12,7 @@ function dateKey(y,m,d) { return `${y}-${pad(m+1)}-${pad(d)}` }
 
 export default function Calendario() {
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
@@ -19,6 +21,8 @@ export default function Calendario() {
   const [selected, setSelected] = useState(null)
   const [detail, setDetail] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchMonth = useCallback(async () => {
     setLoading(true)
@@ -52,6 +56,24 @@ export default function Calendario() {
       .single()
     setDetail(data)
     setDetailLoading(false)
+  }
+
+  async function handleDelete() {
+    if (!detail) return
+    setDeleting(true)
+    const { error } = await supabase.from('giornate').delete().eq('id', detail.id)
+    setDeleting(false)
+    if (error) { alert('Errore durante l\'eliminazione. Riprova.'); return }
+    setSelected(null)
+    setDetail(null)
+    setConfirmDelete(false)
+    fetchMonth()
+  }
+
+  function closeModal() {
+    setSelected(null)
+    setDetail(null)
+    setConfirmDelete(false)
   }
 
   function changeMonth(dir) {
@@ -136,7 +158,7 @@ export default function Calendario() {
 
       {/* MODAL */}
       {selected && (
-        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setSelected(null)}>
+        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && closeModal()}>
           <div className="modal">
             <div className="modal-header">
               <div>
@@ -150,14 +172,53 @@ export default function Calendario() {
                 )}
               </div>
               <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                {detail && (
-                  <button className="btn btn-secondary btn-sm" onClick={() => { setSelected(null); navigate(`/registrazione/${detail.id}`) }}>
+                {detail && !confirmDelete && (
+                  <button className="btn btn-secondary btn-sm" onClick={() => { closeModal(); navigate(`/registrazione/${detail.id}`) }}>
                     ✏️ Modifica
                   </button>
                 )}
-                <button className="modal-close" onClick={() => setSelected(null)}>✕</button>
+                {detail && isAdmin && !confirmDelete && (
+                  <button
+                    className="btn btn-sm"
+                    style={{ background:'#fee2e2', color:'#b91c1c', border:'1px solid #fca5a5' }}
+                    onClick={() => setConfirmDelete(true)}
+                  >
+                    🗑️ Elimina
+                  </button>
+                )}
+                <button className="modal-close" onClick={closeModal}>✕</button>
               </div>
             </div>
+
+            {/* BARRA CONFERMA ELIMINAZIONE */}
+            {confirmDelete && (
+              <div style={{
+                background:'#fef2f2', borderBottom:'1px solid #fca5a5',
+                padding:'14px 20px', display:'flex', alignItems:'center',
+                justifyContent:'space-between', gap:12, flexWrap:'wrap'
+              }}>
+                <div style={{ fontSize:13, color:'#b91c1c', fontWeight:600 }}>
+                  ⚠️ Eliminare questa registrazione? L'azione è irreversibile.
+                </div>
+                <div style={{ display:'flex', gap:8 }}>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={deleting}
+                  >
+                    Annulla
+                  </button>
+                  <button
+                    className="btn btn-sm"
+                    style={{ background:'#b91c1c', color:'white', border:'none' }}
+                    onClick={handleDelete}
+                    disabled={deleting}
+                  >
+                    {deleting ? 'Eliminazione...' : 'Sì, elimina'}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="modal-body">
               {detailLoading ? (
