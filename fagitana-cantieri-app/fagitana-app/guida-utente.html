@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Guida Utente — Fagitana Cantieri</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800;900&display=swap');
+
+  :root {
+    --green: #3AAA35;
+    --green-dark: #2a8a26;
+    --green-light: #e8f7e7;
+    --dark: #1a1a1a;
+    --gray: #5a5a5a;
+    --border: #e0e0e0;
+    --red: #c0392b;
+    --orange: #e67e22;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--dark);
+    background: #f5f5f5;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: white;
+    padding: 60px 72px;
+  }
+
+  /* COPERTINA */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--dark);
+    margin: 0 -72px;
+    padding: 60px 72px;
+    color: white;
+    page-break-after: always;
+  }
+  .cover-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .cover-logo span { color: var(--green); }
+  .cover-subtitle {
+    font-size: 18px;
+    color: #888;
+    margin-bottom: 60px;
+    border-bottom: 3px solid var(--green);
+    padding-bottom: 24px;
+  }
+  .cover-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 40px;
+    font-weight: 900;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .cover-desc {
+    font-size: 16px;
+    color: #aaa;
+    max-width: 480px;
+    line-height: 1.7;
+  }
+  .cover-footer {
+    margin-top: auto;
+    padding-top: 40px;
+    font-size: 12px;
+    color: #555;
+    border-top: 1px solid #333;
+  }
+
+  /* INDICE */
+  .toc { page-break-after: always; padding-top: 40px; }
+  .toc h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px; font-weight: 900;
+    color: var(--dark); margin-bottom: 24px;
+    border-bottom: 3px solid var(--green); padding-bottom: 10px;
+  }
+  .toc-item {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 7px 0; border-bottom: 1px dotted var(--border);
+    font-size: 14px;
+  }
+  .toc-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800; font-size: 16px; color: var(--green);
+    min-width: 30px;
+  }
+  .toc-title { flex: 1; font-weight: 600; }
+  .toc-page { color: #aaa; font-size: 12px; }
+
+  /* SEZIONI */
+  .section { padding-top: 48px; page-break-inside: avoid; }
+  .section-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--green); margin-bottom: 6px;
+  }
+  h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px; font-weight: 900; color: var(--dark);
+    line-height: 1; margin-bottom: 20px;
+    padding-bottom: 12px; border-bottom: 2px solid var(--green-light);
+  }
+  h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 800; color: var(--dark);
+    margin: 28px 0 12px;
+  }
+  h4 {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--gray); margin: 20px 0 8px;
+  }
+  p { margin-bottom: 12px; }
+
+  /* BOX */
+  .box {
+    border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+  }
+  .box-info { background: #e8f4fd; border-left: 4px solid #3b82f6; }
+  .box-warn { background: #fff8e1; border-left: 4px solid var(--orange); }
+  .box-tip  { background: var(--green-light); border-left: 4px solid var(--green); }
+  .box-danger { background: #fff0f0; border-left: 4px solid var(--red); }
+  .box-title { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .box-info .box-title  { color: #1e40af; }
+  .box-warn .box-title  { color: var(--orange); }
+  .box-tip .box-title   { color: var(--green-dark); }
+  .box-danger .box-title { color: var(--red); }
+
+  /* STEP */
+  .steps { margin: 16px 0; }
+  .step {
+    display: flex; gap: 16px; margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .step-num {
+    min-width: 32px; height: 32px;
+    background: var(--green); color: white;
+    border-radius: 50%; font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+
+  /* TABELLA */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th {
+    background: var(--dark); color: white;
+    padding: 10px 14px; text-align: left;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) td { background: #fafafa; }
+  .td-green { color: var(--green-dark); font-weight: 700; }
+  .td-red { color: var(--red); font-weight: 700; }
+  .td-orange { color: var(--orange); font-weight: 700; }
+
+  /* BADGE INLINE */
+  .badge {
+    display: inline-block; padding: 2px 9px;
+    border-radius: 20px; font-size: 11px; font-weight: 700;
+    vertical-align: middle;
+  }
+  .badge-green { background: var(--green-light); color: var(--green-dark); }
+  .badge-red   { background: #fff0f0; color: var(--red); }
+  .badge-dark  { background: var(--dark); color: white; }
+  .badge-orange { background: #fff8e1; color: var(--orange); }
+
+  /* SCHERMATA MOCK */
+  .screen-mock {
+    background: #f8f8f8; border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 20px 24px; margin: 16px 0;
+    font-size: 13px;
+  }
+  .screen-topbar {
+    background: var(--dark); color: white;
+    padding: 8px 16px; border-radius: 6px 6px 0 0;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 15px; margin: -20px -24px 16px;
+    border-bottom: 3px solid var(--green);
+  }
+  .screen-topbar span { color: var(--green); }
+  .field-row {
+    display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .field {
+    flex: 1; min-width: 140px;
+  }
+  .field-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--gray); margin-bottom: 4px;
+  }
+  .field-input {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: 5px; padding: 7px 10px; font-size: 13px;
+    color: #444; width: 100%;
+  }
+  .field-input.filled { border-color: var(--green); color: var(--dark); font-weight: 600; }
+
+  /* PROGRESS MOCK */
+  .progress-row { margin: 10px 0; }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--gray); margin-bottom: 4px;
+  }
+  .progress-bar {
+    height: 10px; background: #e0e0e0; border-radius: 20px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 20px;
+    background: var(--green);
+  }
+  .progress-fill.red { background: var(--red); }
+  .progress-fill.orange { background: var(--orange); }
+
+  /* SEPARATORE */
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  /* LIST */
+  ul, ol { padding-left: 22px; margin: 10px 0; }
+  li { margin-bottom: 6px; }
+  li strong { color: var(--dark); }
+
+  /* CODE */
+  code {
+    background: #f0f0f0; border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 6px; font-size: 12px;
+    font-family: 'Courier New', monospace; color: var(--dark);
+  }
+
+  /* PRINT */
+  @media print {
+    body { background: white; }
+    .page { padding: 40px 50px; box-shadow: none; }
+    .cover { min-height: auto; padding: 80px 50px; }
+    .section { page-break-inside: avoid; }
+    h2 { page-break-after: avoid; }
+    h3 { page-break-after: avoid; }
+    .box { page-break-inside: avoid; }
+    .step { page-break-inside: avoid; }
+  }
+
+  @page { margin: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════════════════
+       COPERTINA
+  ═══════════════════════════════════════════════════ -->
+  <div class="cover">
+    <div class="cover-logo">FAGITANA <span>//</span> CANTIERI</div>
+    <div class="cover-subtitle">Sistema di gestione cantieri</div>
+
+    <div class="cover-title">Guida Utente<br />& Documentazione</div>
+    <div class="cover-desc">
+      Manuale completo per l'utilizzo dell'applicazione: dalla registrazione
+      giornaliera al controllo delle ore preventivate, fino al monitoraggio
+      degli sfori di cantiere.
+    </div>
+
+    <div class="cover-footer">
+      Versione 2.0 &nbsp;·&nbsp; Giugno 2026 &nbsp;·&nbsp; Uso interno Fagitana Srl
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       INDICE
+  ═══════════════════════════════════════════════════ -->
+  <div class="toc">
+    <h2>Indice</h2>
+
+    <div class="toc-item">
+      <span class="toc-num">1</span>
+      <span class="toc-title">Panoramica dell'applicazione</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-num">2</span>
+      <span class="toc-title">Accesso e primo avvio</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-num">3</span>
+      <span class="toc-title">Gestione Cantieri</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-num">4</span>
+      <span class="toc-title">Voci di Computo — il preventivo</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-num">5</span>
+      <span class="toc-title">Registrazione Giornaliera</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-num">6</span>
+      <span class="toc-title">Avanzamento & Controllo Ore Sforate</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-num">7</span>
+      <span class="toc-title">Calendario e storico</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-num">8</span>
+      <span class="toc-title">Domande frequenti</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       1. PANORAMICA
+  ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-num">Sezione 01</div>
+    <h2>Panoramica dell'applicazione</h2>
+
+    <p>
+      <strong>Fagitana Cantieri</strong> è un'applicazione web accessibile da computer,
+      tablet e smartphone. Permette di gestire in modo digitale tutto quello che riguarda
+      i cantieri attivi: presenze operai, avanzamento lavori e controllo delle ore
+      rispetto al preventivo.
+    </p>
+
+    <h3>Le quattro schermate principali</h3>
+
+    <table>
+      <tr>
+        <th>Schermata</th>
+        <th>A cosa serve</th>
+        <th>Chi la usa</th>
+      </tr>
+      <tr>
+        <td><strong>📊 Dashboard</strong></td>
+        <td>Riepilogo veloce: cantieri attivi, ultime registrazioni, statistiche</td>
+        <td>Tutti</td>
+      </tr>
+      <tr>
+        <td><strong>📅 Calendario</strong></td>
+        <td>Storico delle giornate lavorative, una per giorno, con tutti i dettagli</td>
+        <td>Tutti</td>
+      </tr>
+      <tr>
+        <td><strong>📋 Nuova Registrazione</strong></td>
+        <td>Inserimento della giornata: cantiere, operai presenti, ore, avanzamento voci</td>
+        <td>Capo cantiere / Admin</td>
+      </tr>
+      <tr>
+        <td><strong>🏗️ Cantieri</strong></td>
+        <td>Anagrafica cantieri, voci di computo e riepilogo ore sforate</td>
+        <td>Admin</td>
+      </tr>
+    </table>
+
+    <div class="box box-info">
+      <div class="box-title">ℹ️ Ruoli utente</div>
+      L'applicazione ha due ruoli: <strong>Admin</strong> (può creare/modificare/eliminare tutto)
+      e <strong>Utente standard</strong> (può vedere i dati e fare registrazioni).
+      Il ruolo Admin è indicato da un'etichetta arancione accanto al nome.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       2. ACCESSO
+  ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-num">Sezione 02</div>
+    <h2>Accesso e primo avvio</h2>
+
+    <h3>Come accedere</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Apri il browser</div>
+          Vai all'indirizzo dell'applicazione (es. <code>fagitana-cantieri.vercel.app</code>).
+          Puoi salvarlo come segnalibro o aggiungerlo alla schermata Home sul telefono.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Inserisci email e password</div>
+          Usa le credenziali che ti sono state fornite. La sessione rimane attiva,
+          non devi fare login ogni volta.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Sei dentro</div>
+          Arrivi direttamente alla Dashboard. Dal menu laterale (o dall'icona ☰ su mobile)
+          puoi navigare tra le sezioni.
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-tip">
+      <div class="box-title">💡 Consiglio</div>
+      Su smartphone: dopo aver aperto il sito, usa <strong>"Aggiungi a schermata Home"</strong>
+      dal browser. L'app si comporta come un'app nativa, senza barra degli indirizzi.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       3. GESTIONE CANTIERI
+  ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-num">Sezione 03</div>
+    <h2>Gestione Cantieri</h2>
+
+    <p>
+      Prima di fare qualsiasi registrazione, devi creare il cantiere. Vai su
+      <strong>🏗️ Cantieri</strong> nel menu laterale.
+    </p>
+
+    <h3>Creare un nuovo cantiere</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Clicca "＋ Nuovo Cantiere"</div>
+          Si apre il form in cima alla pagina.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Compila i campi</div>
+          <table>
+            <tr><th>Campo</th><th>Obbligatorio</th><th>Esempio</th></tr>
+            <tr><td>Nome Cantiere</td><td class="td-green">✓ Sì</td><td>Villa Nogara – Anesi</td></tr>
+            <tr><td>Comune</td><td>No</td><td>Trento</td></tr>
+            <tr><td>Indirizzo</td><td>No</td><td>Via Roma 14</td></tr>
+            <tr><td>Fase Iniziale</td><td>No</td><td>Fondamenta</td></tr>
+            <tr><td>Note</td><td>No</td><td>Accesso dal cancello laterale</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Clicca "💾 Salva Cantiere"</div>
+          Il cantiere appare nella lista con lo stato <span class="badge badge-green">Attivo</span>.
+        </div>
+      </div>
+    </div>
+
+    <h3>Stati del cantiere</h3>
+    <table>
+      <tr><th>Stato</th><th>Significato</th></tr>
+      <tr>
+        <td><span class="badge badge-green">Attivo</span></td>
+        <td>Cantiere in corso. Appare nelle registrazioni giornaliere.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-dark" style="background:#888">Completato</span></td>
+        <td>Cantiere chiuso. Non appare più nelle nuove registrazioni.</td>
+      </tr>
+    </table>
+
+    <div class="box box-warn">
+      <div class="box-title">⚠️ Attenzione</div>
+      Un cantiere <strong>completato non viene eliminato</strong> — rimangono tutte le
+      registrazioni storiche e il riepilogo ore. Puoi sempre riattivarlo con il pulsante
+      "↩ Riattiva".
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       4. VOCI DI COMPUTO
+  ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-num">Sezione 04</div>
+    <h2>Voci di Computo — il preventivo</h2>
+
+    <p>
+      Le <strong>voci di computo</strong> sono le singole lavorazioni preventivate per un cantiere,
+      prese dal computo metrico del tecnico. Per ogni voce si indicano la quantità prevista
+      e le <strong>ore stimate</strong> per eseguirla.
+    </p>
+
+    <div class="box box-tip">
+      <div class="box-title">🎯 Perché inserire le ore?</div>
+      Le ore preventivate per ogni voce sono il <strong>cuore del sistema di controllo</strong>.
+      Ogni giorno l'operaio registra quante ore ha dedicato a quella lavorazione.
+      L'app confronta automaticamente <em>ore spese vs ore preventivate</em> e mostra
+      lo sforo in rosso.
+    </div>
+
+    <h3>Come aprire il computo di un cantiere</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Vai su 🏗️ Cantieri</div>
+          Trova il cantiere nella lista.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Clicca "📊 Computo"</div>
+          Si apre la pagina di dettaglio del cantiere con due tab: <strong>Voci di Computo</strong>
+          e <strong>Avanzamento & Ore</strong>.
+        </div>
+      </div>
+    </div>
+
+    <h3>Come inserire una voce dal computo metrico</h3>
+
+    <p>
+      Prendi il foglio del computo metrico (il PDF che ti ha dato il tecnico) e per ogni
+      riga che vuoi tracciare clicca <strong>"＋ Aggiungi Voce"</strong> e compila:
+    </p>
+
+    <div class="screen-mock">
+      <div class="screen-topbar">FAGITANA <span>//</span> CANTIERI &nbsp;·&nbsp; Nuova Voce di Computo</div>
+      <div class="field-row">
+        <div class="field">
+          <div class="field-label">Categoria</div>
+          <div class="field-input filled">SCAVI E DEMOLIZIONI</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Descrizione *</div>
+          <div class="field-input filled">Scavo a sezione obbligata</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field" style="max-width:120px">
+          <div class="field-label">Unità misura</div>
+          <div class="field-input filled">m³</div>
+        </div>
+        <div class="field" style="max-width:140px">
+          <div class="field-label">Quantità Totale *</div>
+          <div class="field-input filled">158.40</div>
+        </div>
+        <div class="field" style="max-width:130px">
+          <div class="field-label">Ore Preventivo</div>
+          <div class="field-input filled" style="border-color:var(--orange)">48</div>
+        </div>
+        <div class="field" style="max-width:140px">
+          <div class="field-label">Prezzo unit. €/m³</div>
+          <div class="field-input">13.29</div>
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <tr>
+        <th>Campo</th>
+        <th>Obbligatorio</th>
+        <th>Come trovarlo nel PDF</th>
+      </tr>
+      <tr>
+        <td><strong>Categoria</strong></td>
+        <td>No</td>
+        <td>Il titolo del gruppo di lavorazioni (es. "SCAVI E DEMOLIZIONI")</td>
+      </tr>
+      <tr>
+        <td><strong>Descrizione</strong></td>
+        <td class="td-green">✓ Sì</td>
+        <td>La descrizione breve della voce (colonna "DESIGNAZIONE DEI LAVORI")</td>
+      </tr>
+      <tr>
+        <td><strong>Unità di misura</strong></td>
+        <td class="td-green">✓ Sì</td>
+        <td>La colonna "SOMMANO" — es. m³, m², h, cad</td>
+      </tr>
+      <tr>
+        <td><strong>Quantità Totale</strong></td>
+        <td class="td-green">✓ Sì</td>
+        <td>Il numero nella colonna "Quantità" a destra di SOMMANO</td>
+      </tr>
+      <tr>
+        <td><strong>Ore Preventivo</strong></td>
+        <td class="td-orange">⭐ Importante</td>
+        <td>Vedi spiegazione sotto ↓</td>
+      </tr>
+      <tr>
+        <td><strong>Prezzo Unitario</strong></td>
+        <td>No</td>
+        <td>Colonna "unitario" del computo — serve solo per il calcolo economico</td>
+      </tr>
+    </table>
+
+    <h3>Come determinare le Ore Preventivo</h3>
+
+    <p>Ci sono due casi:</p>
+
+    <h4>Caso 1 — La voce è già in ore (unità misura = h)</h4>
+    <p>
+      Se la voce nel computo è già misurata in ore, le ore preventivo coincidono
+      con la quantità totale. Esempio dal PDF:
+    </p>
+    <table>
+      <tr><th>Descrizione nel PDF</th><th>Quantità</th><th>U.M.</th><th>→ Ore Preventivo</th></tr>
+      <tr>
+        <td>Operaio comune — Tracce impianti</td>
+        <td>64</td>
+        <td>h</td>
+        <td class="td-green"><strong>64</strong></td>
+      </tr>
+      <tr>
+        <td>Operaio specializzato — Organizzazione cantiere</td>
+        <td>16</td>
+        <td>h</td>
+        <td class="td-green"><strong>16</strong></td>
+      </tr>
+    </table>
+
+    <h4>Caso 2 — La voce è in m², m³, cad, ecc.</h4>
+    <p>
+      Qui devi stimare insieme al capo cantiere quante ore ci vogliono. Alcuni criteri:
+    </p>
+    <ul>
+      <li><strong>Esperienza pregressa</strong>: "l'ultima volta per fare 160 m³ di scavo ci hanno messo 3 giorni in 2 operai = 48h"</li>
+      <li><strong>Regola empirica</strong>: parti da una stima conservativa, poi aggiustala dopo i primi cantieri</li>
+      <li><strong>Se non sai</strong>: metti 0 — puoi aggiornare il campo in qualsiasi momento</li>
+    </ul>
+
+    <table>
+      <tr><th>Voce</th><th>Qtà</th><th>U.M.</th><th>Ore stimate (esempio)</th><th>Logica</th></tr>
+      <tr>
+        <td>Scavo a sezione obbligata</td>
+        <td>158</td><td>m³</td>
+        <td class="td-orange"><strong>48 h</strong></td>
+        <td>3 giorni × 2 operai × 8h</td>
+      </tr>
+      <tr>
+        <td>Cappotto lana minerale</td>
+        <td>214</td><td>m²</td>
+        <td class="td-orange"><strong>120 h</strong></td>
+        <td>5 giorni × 3 operai × 8h</td>
+      </tr>
+      <tr>
+        <td>Tetto in legno</td>
+        <td>127</td><td>m²</td>
+        <td class="td-orange"><strong>80 h</strong></td>
+        <td>5 giorni × 2 operai × 8h</td>
+      </tr>
+      <tr>
+        <td>Muratura portante</td>
+        <td>119</td><td>m³</td>
+        <td class="td-orange"><strong>96 h</strong></td>
+        <td>4 settimane × 3 op × 8h</td>
+      </tr>
+    </table>
+
+    <div class="box box-tip">
+      <div class="box-title">💡 Strategia consigliata per iniziare</div>
+      <ol>
+        <li>Inserisci <strong>prima le voci già in ore</strong> (h) — dati certi, nessuna stima</li>
+        <li>Poi aggiungi le <strong>voci principali</strong> per costo o durata (scavi, murature, cappotto)</li>
+        <li>Aggiungi le ore preventivo man mano che il capo le stima</li>
+        <li>Dopo il primo cantiere simile completato, avrai i dati reali per stimare meglio i prossimi</li>
+      </ol>
+    </div>
+
+    <h3>Quali voci vale la pena inserire?</h3>
+    <p>
+      Non è necessario inserire tutte le 123 voci del computo. Concentrati su quelle che:
+    </p>
+    <ul>
+      <li><strong>Pesano di più sulle ore totali</strong> (lavorazioni lunghe)</li>
+      <li><strong>Tendono a sforare</strong> per esperienza passata</li>
+      <li><strong>Sono già in ore</strong> nel computo (inserimento immediato, zero stime)</li>
+    </ul>
+
+    <div class="box box-warn">
+      <div class="box-title">⚠️ Nota importante</div>
+      Le voci di computo si inseriscono <strong>una volta sola</strong> all'inizio del cantiere.
+      Poi ogni giorno l'operaio aggiorna solo le quantità eseguite, non crea nuove voci.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       5. REGISTRAZIONE GIORNALIERA
+  ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-num">Sezione 05</div>
+    <h2>Registrazione Giornaliera</h2>
+
+    <p>
+      Ogni giorno lavorativo, il capo cantiere compila la registrazione.
+      Vai su <strong>📋 Nuova Registrazione</strong> nel menu.
+    </p>
+
+    <h3>I blocchi della registrazione</h3>
+
+    <h4>Blocco 1 — Cantiere e data</h4>
+    <ul>
+      <li>Seleziona il cantiere dal menu a tendina (compaiono solo i cantieri attivi)</li>
+      <li>La data è preimpostata ad oggi, modifica se necessario</li>
+      <li>Inserisci la fase dei lavori (es. "Muratura piano terra")</li>
+      <li>Seleziona il meteo del giorno</li>
+    </ul>
+
+    <h4>Blocco 2 — Orario cantiere</h4>
+    <ul>
+      <li><strong>Inizio Lavori</strong> e <strong>Fine Lavori</strong>: gli orari generali della squadra</li>
+      <li><strong>Inizio e Fine Pausa</strong>: la pausa pranzo (viene sottratta automaticamente)</li>
+      <li>Le <strong>Ore Effettive</strong> si calcolano in automatico e vengono mostrate in verde</li>
+    </ul>
+
+    <h4>Blocco 3 — Presenze operai</h4>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Aggiungi operaio dalla lista</div>
+          Seleziona dal menu a tendina e clicca <strong>＋</strong>. L'operaio viene aggiunto con
+          gli orari del cantiere già precompilati.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Aggiungi operaio "jolly" (esterno)</div>
+          Per operai occasionali non in anagrafica: scrivi il nome nel campo "Operaio jolly"
+          e clicca <strong>＋</strong>.
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Imposta lo stato per ogni operaio</div>
+          <table>
+            <tr>
+              <td><span class="badge badge-green">✅ Presente</span></td>
+              <td>Ha lavorato tutto il giorno con gli orari indicati</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-orange">⚡ Parziale</span></td>
+              <td>Ha lavorato ma con orari diversi — modifica entrata/uscita</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-red">❌ Assente</span></td>
+              <td>Non si è presentato — le ore non vengono conteggiate</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <h4>Blocco 4 — Avanzamento Voci di Computo ⭐ Nuovo</h4>
+
+    <p>
+      Se il cantiere ha voci di computo inserite, appare questo blocco con la lista
+      di tutte le lavorazioni. <strong>Per ogni voce lavorata oggi</strong> compila:
+    </p>
+
+    <div class="screen-mock">
+      <div class="screen-topbar">📊 Avanzamento Voci di Computo</div>
+      <div style="display:grid;grid-template-columns:1fr 120px 120px;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;margin-bottom:8px">
+        <span style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Voce</span>
+        <span style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;text-align:center">Qtà oggi</span>
+        <span style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;text-align:center">Ore oggi</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 120px 120px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #eee">
+        <div>
+          <div style="font-weight:600;font-size:13px">Scavo a sezione obbligata</div>
+          <div style="font-size:11px;color:#aaa">SCAVI E DEMOLIZIONI · m³ · 48h prev.</div>
+        </div>
+        <div class="field-input filled" style="text-align:center;padding:6px">18.5</div>
+        <div class="field-input filled" style="text-align:center;padding:6px">8</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 120px 120px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #eee">
+        <div>
+          <div style="font-weight:600;font-size:13px">Reinterro comune</div>
+          <div style="font-size:11px;color:#aaa">SCAVI E DEMOLIZIONI · m³</div>
+        </div>
+        <div class="field-input" style="text-align:center;padding:6px;color:#ccc">0 m³</div>
+        <div class="field-input" style="text-align:center;padding:6px;color:#ccc">0 h</div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th>Campo</th><th>Cosa inserire</th></tr>
+      <tr>
+        <td><strong>Qtà oggi</strong></td>
+        <td>La quantità eseguita oggi (es. 18.5 m³ di scavo). Lascia 0 se non hai lavorato su quella voce.</td>
+      </tr>
+      <tr>
+        <td><strong>Ore oggi</strong></td>
+        <td>Le ore dedicate a quella lavorazione oggi (es. 8h). Può essere diverso dall'orario cantiere se hai fatto più lavori.</td>
+      </tr>
+    </table>
+
+    <div class="box box-info">
+      <div class="box-title">ℹ️ Non devi compilare tutto</div>
+      Le righe lasciate a 0 vengono ignorate. Compila solo le voci su cui hai
+      effettivamente lavorato oggi. Le righe compilate diventano verdi.
+    </div>
+
+    <h4>Blocco 5 — Materiali e Mezzi</h4>
+    <p>
+      Inserisci i materiali usati oggi (es. "Cemento 3 sacchi") e i mezzi/attrezzature
+      impiegati (es. "Gru, Betoniera"). Serve per lo storico, non per il calcolo ore.
+    </p>
+
+    <h4>Blocco 6 — Note e Avanzamento</h4>
+    <ul>
+      <li><strong>Attività svolte</strong>: breve descrizione di cosa è stato fatto</li>
+      <li><strong>Problemi / Segnalazioni</strong>: imprevisti, ritardi, materiali mancanti</li>
+      <li><strong>Prossimi lavori</strong>: programma per i giorni successivi</li>
+      <li><strong>Avanzamento %</strong>: percentuale generale di completamento del cantiere (trascina il cursore)</li>
+    </ul>
+
+    <h3>Salvare la registrazione</h3>
+    <p>
+      Clicca il pulsante verde <strong>"💾 SALVA REGISTRAZIONE"</strong> in basso.
+      Appare un messaggio di conferma e vieni reindirizzato al Calendario.
+    </p>
+
+    <div class="box box-warn">
+      <div class="box-title">⚠️ Modifica registrazione</div>
+      Se hai commesso un errore, apri il Calendario, clicca sul giorno e poi su
+      <strong>"✏️ Modifica"</strong>. Puoi correggere tutto. I valori delle voci di
+      computo vengono sovrascritti (non duplicati).
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       6. AVANZAMENTO & ORE SFORATE
+  ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-num">Sezione 06</div>
+    <h2>Avanzamento & Controllo Ore Sforate</h2>
+
+    <p>
+      Questa è la schermata più importante per il capo. Si accede da
+      <strong>🏗️ Cantieri → 📊 Computo → tab "Avanzamento & Ore"</strong>.
+    </p>
+
+    <h3>I tre indicatori in cima</h3>
+
+    <div class="screen-mock">
+      <div class="screen-topbar">FAGITANA <span>//</span> CANTIERI &nbsp;·&nbsp; Avanzamento & Ore</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px">
+        <div style="border:1.5px solid #3b82f6;border-radius:8px;padding:14px;border-left:4px solid #3b82f6">
+          <div style="font-size:28px;font-weight:900;font-family:'Barlow Condensed',sans-serif">248h</div>
+          <div style="font-size:12px;color:#888;margin-top:3px">Ore Preventivate</div>
+        </div>
+        <div style="border:1.5px solid #c0392b;border-radius:8px;padding:14px;border-left:4px solid #c0392b">
+          <div style="font-size:28px;font-weight:900;font-family:'Barlow Condensed',sans-serif;color:#c0392b">286h</div>
+          <div style="font-size:12px;color:#888;margin-top:3px">Ore Effettive (presenze)</div>
+        </div>
+        <div style="border:1.5px solid #c0392b;border-radius:8px;padding:14px;border-left:4px solid #c0392b">
+          <div style="font-size:24px;font-weight:900;font-family:'Barlow Condensed',sans-serif;color:#c0392b">▲ 38h</div>
+          <div style="font-size:12px;color:#c0392b;font-weight:700;margin-top:3px">⚠️ Ore in eccesso</div>
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th>Indicatore</th><th>Da dove viene</th></tr>
+      <tr>
+        <td><strong>Ore Preventivate</strong></td>
+        <td>Somma di tutti i campi "Ore Preventivo" delle voci di computo inserite</td>
+      </tr>
+      <tr>
+        <td><strong>Ore Effettive</strong></td>
+        <td>Somma delle ore di tutti gli operai presenti, calcolata automaticamente dalle registrazioni giornaliere</td>
+      </tr>
+      <tr>
+        <td><strong>Delta (▲/▼)</strong></td>
+        <td>La differenza. <span class="badge badge-red">▲ rosso</span> = si sta sforando. <span class="badge badge-green">▼ verde</span> = si è in risparmio.</td>
+      </tr>
+    </table>
+
+    <h3>Avanzamento per voce</h3>
+    <p>
+      Sotto gli indicatori, ogni voce di computo mostra due barre:
+    </p>
+
+    <div class="screen-mock">
+      <div style="padding:12px 0;border-bottom:1px solid #eee">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-weight:600;font-size:14px">Scavo a sezione obbligata</div>
+            <div style="font-size:11px;color:#aaa">SCAVI E DEMOLIZIONI · m³</div>
+          </div>
+          <span class="badge badge-orange">68% qtà</span>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>Quantità: <strong>107.7</strong> / 158.4 m³</span>
+            <span>Residuo: 50.7 m³</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:68%"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:#c0392b;font-weight:700">
+            <span>Ore: <strong>56h</strong> spese / 48h prev.</span>
+            <span>⚠️ SFORO +8h</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill red" style="width:100%"></div></div>
+        </div>
+      </div>
+      <div style="padding:12px 0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-weight:600;font-size:14px">Cappotto lana minerale</div>
+            <div style="font-size:11px;color:#aaa">ISOLAZIONE · m²</div>
+          </div>
+          <span class="badge badge-green">30% qtà</span>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>Quantità: <strong>64.3</strong> / 214.5 m²</span>
+            <span>Residuo: 150.2 m²</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--orange)">
+            <span>Ore: <strong>96h</strong> spese / 120h prev.</span>
+            <span>⚡ Vicino al limite</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill orange" style="width:80%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th>Colore barra ore</th><th>Significato</th><th>Azione consigliata</th></tr>
+      <tr>
+        <td>🟢 Verde</td>
+        <td>Ore spese &lt; 80% del preventivo</td>
+        <td>Tutto ok</td>
+      </tr>
+      <tr>
+        <td>🟠 Arancione</td>
+        <td>Ore spese tra 80% e 100% del preventivo</td>
+        <td>Attenzione, si sta avvicinando al limite</td>
+      </tr>
+      <tr>
+        <td>🔴 Rosso + ⚠️ SFORO</td>
+        <td>Ore spese &gt; 100% del preventivo</td>
+        <td>Analizzare il motivo dello sforo, eventualmente aggiornare il preventivo</td>
+      </tr>
+    </table>
+
+    <h3>Riepilogo economico</h3>
+    <p>
+      Se hai inserito il prezzo unitario nelle voci, in cima al tab Avanzamento
+      appare anche il riepilogo economico: importo eseguito, residuo e totale preventivo.
+      La barra mostra la percentuale di valore completata sul totale.
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       7. CALENDARIO
+  ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-num">Sezione 07</div>
+    <h2>Calendario e storico</h2>
+
+    <p>
+      Il <strong>📅 Calendario</strong> mostra una griglia mensile con tutti i giorni
+      in cui è stata fatta almeno una registrazione.
+    </p>
+
+    <ul>
+      <li>Ogni giorno con lavori mostra: nome del cantiere, meteo, operai presenti</li>
+      <li>Cliccando su un giorno si apre il dettaglio completo (finestra popup)</li>
+      <li>Dal dettaglio puoi <strong>modificare</strong> la registrazione (bottone ✏️)</li>
+      <li>Gli <strong>Admin</strong> possono anche eliminare una registrazione</li>
+      <li>Le frecce ← → cambiano mese</li>
+    </ul>
+
+    <div class="box box-info">
+      <div class="box-title">ℹ️ Giorni con più cantieri</div>
+      Se in un giorno hai lavorato su più cantieri, nel calendario appaiono tutti
+      (più puntini verdi). Cliccando vedi tutte le registrazioni di quel giorno.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       8. FAQ
+  ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-num">Sezione 08</div>
+    <h2>Domande frequenti</h2>
+
+    <h3>Ho sbagliato a inserire le ore di un operaio. Come correggo?</h3>
+    <p>
+      Vai al <strong>Calendario</strong>, clicca sul giorno corrispondente e poi su
+      <strong>"✏️ Modifica"</strong>. Puoi cambiare tutti i dati e salvare di nuovo.
+    </p>
+
+    <hr />
+
+    <h3>Ho dimenticato di compilare l'avanzamento di una voce. Posso aggiungerlo dopo?</h3>
+    <p>
+      Sì. Modifica la registrazione del giorno in cui hai lavorato su quella voce,
+      compila il campo e salva. I valori precedenti vengono sostituiti.
+    </p>
+
+    <hr />
+
+    <h3>Le ore effettive sembrano sbagliate nel riepilogo avanzamento</h3>
+    <p>
+      Le ore effettive sono la somma di tutti gli operai presenti (non assenti) su quel
+      cantiere. Se un operaio è stato segnato come "Presente" con orari errati, modifica
+      le registrazioni giornaliere corrispondenti.
+    </p>
+
+    <hr />
+
+    <h3>Posso aggiungere voci di computo a cantiere già avviato?</h3>
+    <p>
+      Sì. Puoi aggiungere voci in qualsiasi momento. Le registrazioni già fatte
+      non vengono toccate; le nuove voci partiranno da 0.
+    </p>
+
+    <hr />
+
+    <h3>Come elimino una voce di computo inserita per errore?</h3>
+    <p>
+      Vai su <strong>Cantieri → 📊 Computo → tab "Voci di Computo"</strong> e clicca
+      il bottone <strong>✕</strong> a destra della voce. Attenzione: vengono eliminati
+      anche tutti gli avanzamenti registrati per quella voce.
+    </p>
+
+    <hr />
+
+    <h3>Il prezzo unitario è obbligatorio?</h3>
+    <p>
+      No. Serve solo se vuoi vedere il riepilogo economico (importo eseguito vs residuo).
+      Puoi usare il sistema di controllo ore anche senza prezzi.
+    </p>
+
+    <hr />
+
+    <h3>Chi può accedere all'app?</h3>
+    <p>
+      Solo chi ha credenziali (email + password) create dall'amministratore.
+      Non esiste registrazione pubblica. Le password si cambiano contattando
+      l'amministratore del sistema.
+    </p>
+
+    <hr />
+
+    <div class="box box-tip" style="margin-top: 40px">
+      <div class="box-title">📞 Supporto</div>
+      Per problemi tecnici o richieste di nuove funzionalità contatta il referente tecnico.
+      Includi sempre: descrizione del problema, schermata in cui si verifica, e se possibile
+      uno screenshot.
+    </div>
+
+    <div style="margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border);
+                text-align: center; color: #aaa; font-size: 12px">
+      Fagitana Cantieri &nbsp;·&nbsp; Documentazione interna &nbsp;·&nbsp; Giugno 2026<br />
+      Versione 2.0 — include gestione computo metrico e controllo ore sforate
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

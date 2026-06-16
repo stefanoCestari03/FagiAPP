@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Calendario from './pages/Calendario'
 import NuovaGiornata from './pages/NuovaGiornata'
 import Cantieri from './pages/Cantieri'
+import CantierDetail from './pages/CantierDetail'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -29,6 +30,7 @@ function AppRoutes() {
         <Route path="registrazione" element={<NuovaGiornata />} />
         <Route path="registrazione/:id" element={<NuovaGiornata />} />
         <Route path="cantieri" element={<Cantieri />} />
+        <Route path="cantieri/:id" element={<CantierDetail />} />
       </Route>
     </Routes>
   )

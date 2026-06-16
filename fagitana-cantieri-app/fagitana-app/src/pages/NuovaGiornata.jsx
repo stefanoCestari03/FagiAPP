@@ -42,6 +42,10 @@ export default function NuovaGiornata() {
   const [newMat, setNewMat]       = useState('')
   const [newMezzo, setNewMezzo]   = useState('')
 
+  // COMPUTO: voci del cantiere selezionato + avanzamento di oggi
+  const [vociCantiere, setVociCantiere]       = useState([])
+  const [avanzamentoOggi, setAvanzamentoOggi] = useState({}) // { voce_id: { quantita: '', ore: '' } }
+
   const [saving, setSaving]   = useState(false)
   const [toast, setToast]     = useState(null)
   const [loading, setLoading] = useState(true)
@@ -52,6 +56,18 @@ export default function NuovaGiornata() {
       .then(({ data }) => setCantieri(data || []))
     supabase.from('operai').select('id,nome,cognome').eq('attivo', true).order('cognome')
       .then(({ data }) => setOperaiDB(data || []))
+  }, [])
+
+  // ── Carica voci computo quando cambia il cantiere (solo in modalità crea) ─
+  const loadVociCantiere = useCallback(async (cId) => {
+    if (!cId) { setVociCantiere([]); setAvanzamentoOggi({}); return }
+    const { data } = await supabase
+      .from('voci_computo').select('*').eq('cantiere_id', cId)
+      .order('categoria').order('created_at')
+    setVociCantiere(data || [])
+    const init = {}
+    for (const v of data || []) init[v.id] = { quantita: '', ore: '' }
+    setAvanzamentoOggi(init)
   }, [])
 
   // ── Carica giornata esistente (modalità modifica) ─────────────────────────
@@ -76,6 +92,26 @@ export default function NuovaGiornata() {
       setNoteProssimi(g.note_prossimi || '')
       setMateriali(g.materiali?.map(m => ({ id: m.id, nome: m.nome, quantita: m.quantita || '' })) || [])
       setMezzi(g.mezzi?.map(m => ({ id: m.id, nome: m.nome, utilizzo: m.utilizzo || '' })) || [])
+
+      // Carica voci computo e avanzamenti esistenti per questa giornata
+      const { data: vociData } = await supabase
+        .from('voci_computo').select('*').eq('cantiere_id', g.cantiere_id)
+        .order('categoria').order('created_at')
+      setVociCantiere(vociData || [])
+
+      const { data: avOggi } = await supabase
+        .from('avanzamento_giornaliero').select('voce_id, quantita_eseguita, ore_spese')
+        .eq('giornata_id', id)
+      const avMap = {}
+      for (const a of avOggi || []) {
+        avMap[a.voce_id] = { quantita: String(a.quantita_eseguita || ''), ore: String(a.ore_spese || '') }
+      }
+      // Assicura che tutte le voci abbiano un'entry inizializzata
+      for (const v of vociData || []) {
+        if (!avMap[v.id]) avMap[v.id] = { quantita: '', ore: '' }
+      }
+      setAvanzamentoOggi(avMap)
+
       setPresenze(g.presenze?.map(p => ({
         operaio_id: p.operaio_id || null,
         nome: p.nome_jolly || `${p.operai?.nome} ${p.operai?.cognome}`,
@@ -173,6 +209,7 @@ export default function NuovaGiornata() {
           supabase.from('presenze').delete().eq('giornata_id', id),
           supabase.from('materiali').delete().eq('giornata_id', id),
           supabase.from('mezzi').delete().eq('giornata_id', id),
+          supabase.from('avanzamento_giornaliero').delete().eq('giornata_id', id),
         ])
       } else {
         const { data: newG, error } = await supabase.from('giornate').insert(giornataPayload).select('id').single()
@@ -189,6 +226,17 @@ export default function NuovaGiornata() {
         ora_uscita:   p.stato !== 'assente' ? p.uscita  : null,
       }))
 
+      // Avanzamento giornaliero: solo voci con almeno quantità o ore > 0
+      const avanzamentoPayload = Object.entries(avanzamentoOggi)
+        .filter(([, v]) => (Number(v.quantita) > 0) || (Number(v.ore) > 0))
+        .map(([voceId, v]) => ({
+          voce_id:           voceId,
+          giornata_id:       giornataId,
+          cantiere_id:       cantiereId,
+          quantita_eseguita: Number(v.quantita) || 0,
+          ore_spese:         Number(v.ore) || 0,
+        }))
+
       await Promise.all([
         presenze.length > 0 && supabase.from('presenze').insert(presenzePayload),
         materiali.length > 0 && supabase.from('materiali').insert(
@@ -197,6 +245,7 @@ export default function NuovaGiornata() {
         mezzi.length > 0 && supabase.from('mezzi').insert(
           mezzi.map(m => ({ giornata_id: giornataId, nome: m.nome, utilizzo: m.utilizzo || null }))
         ),
+        avanzamentoPayload.length > 0 && supabase.from('avanzamento_giornaliero').insert(avanzamentoPayload),
       ].filter(Boolean))
 
       setToast(isEdit ? '✅ Registrazione aggiornata!' : '✅ Registrazione salvata!')
@@ -212,6 +261,12 @@ export default function NuovaGiornata() {
   // Operai disponibili nel dropdown (escludi già aggiunti)
   const operaiDisponibili = operaiDB.filter(o => !presenze.find(p => p.operaio_id === o.id))
   const presentiCount = presenze.filter(p => p.stato !== 'assente').length
+
+  // ── Cambio cantiere in modalità crea ─────────────────────────────────────
+  const handleCantiereChange = (newId) => {
+    setCantiereId(newId)
+    if (!isEdit) loadVociCantiere(newId)
+  }
 
   if (loading) return <div className="loading"><div className="spinner" /></div>
 
@@ -239,7 +294,7 @@ export default function NuovaGiornata() {
           <div className="card-body">
             <div className="form-row">
               <label className="form-label">Cantiere</label>
-              <select className="form-select" value={cantiereId} onChange={e => setCantiereId(e.target.value)}>
+              <select className="form-select" value={cantiereId} onChange={e => handleCantiereChange(e.target.value)}>
                 <option value="">— Seleziona cantiere —</option>
                 {cantieri.map(c => <option key={c.id} value={c.id}>{c.nome}{c.comune ? ` – ${c.comune}` : ''}</option>)}
               </select>
@@ -468,6 +523,87 @@ export default function NuovaGiornata() {
           </div>
         </div>
       </div>
+
+      {/* AVANZAMENTO VOCI DI COMPUTO */}
+      {vociCantiere.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <div className="card-icon">📊</div>
+            <div>
+              <div className="card-title">Avanzamento Voci di Computo</div>
+              <div className="card-subtitle">Indica quantità eseguite oggi e ore spese per ogni lavorazione</div>
+            </div>
+            <span className="badge badge-dark" style={{ marginLeft: 'auto' }}>
+              {vociCantiere.length} voci
+            </span>
+          </div>
+          <div className="card-body" style={{ padding: 0 }}>
+            {/* Intestazione colonne */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 120px 120px',
+              gap: 8, padding: '8px 20px',
+              background: 'var(--dark)', borderBottom: '1px solid #333',
+            }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: 1 }}>
+                Voce
+              </span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>
+                Qtà oggi
+              </span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>
+                Ore oggi
+              </span>
+            </div>
+            {vociCantiere.map((v, i) => {
+              const av = avanzamentoOggi[v.id] || { quantita: '', ore: '' }
+              return (
+                <div
+                  key={v.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 120px 120px',
+                    gap: 8, padding: '10px 20px',
+                    alignItems: 'center',
+                    borderBottom: i < vociCantiere.length - 1 ? '1px solid var(--border)' : 'none',
+                    background: (Number(av.quantita) > 0 || Number(av.ore) > 0) ? 'var(--green-light)' : 'white',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 13 }}>{v.descrizione}</div>
+                    <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>
+                      {v.categoria} · {v.unita_misura}
+                      {v.ore_preventivo > 0 && ` · ${v.ore_preventivo}h prev.`}
+                    </div>
+                  </div>
+                  <input
+                    className="form-input"
+                    type="number" min="0" step="0.01"
+                    placeholder={`0 ${v.unita_misura}`}
+                    value={av.quantita}
+                    onChange={e => setAvanzamentoOggi(prev => ({
+                      ...prev,
+                      [v.id]: { ...prev[v.id], quantita: e.target.value }
+                    }))}
+                    style={{ textAlign: 'center', padding: '6px 8px', fontSize: 13 }}
+                  />
+                  <input
+                    className="form-input"
+                    type="number" min="0" step="0.5"
+                    placeholder="0 h"
+                    value={av.ore}
+                    onChange={e => setAvanzamentoOggi(prev => ({
+                      ...prev,
+                      [v.id]: { ...prev[v.id], ore: e.target.value }
+                    }))}
+                    style={{ textAlign: 'center', padding: '6px 8px', fontSize: 13 }}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* NOTE + AVANZAMENTO */}
       <div className="card">

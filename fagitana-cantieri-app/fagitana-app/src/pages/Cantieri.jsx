@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 
@@ -8,6 +9,7 @@ function Toast({ msg, onDone }) {
 }
 
 export default function Cantieri() {
+  const navigate = useNavigate()
   const [cantieri, setCantieri] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -142,8 +144,15 @@ export default function Cantieri() {
                   </div>
                   {c.note && <div style={{ fontSize:11, color:'#aaa', marginTop:2 }}>{c.note}</div>}
                 </div>
-                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
                   {statoBadge(c.stato)}
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => navigate(`/cantieri/${c.id}`)}
+                    title="Vedi computo e avanzamento"
+                  >
+                    📊 Computo
+                  </button>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => toggleStato(c)}
