@@ -464,11 +464,13 @@ body {
   display: flex; align-items: center; gap: 16px;
   padding: 14px 20px; border-bottom: 1px solid var(--border);
   transition: background .12s; cursor: pointer;
+  flex-wrap: wrap;
 }
 .cantiere-row:last-child { border-bottom: none; }
 .cantiere-row:hover { background: #f9f9f9; }
 .cantiere-name { font-weight: 600; font-size: 15px; }
 .cantiere-addr { font-size: 12px; color: var(--gray); margin-top: 2px; }
+.cantiere-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 /* ── TABS ── */
 .tabs {
@@ -514,4 +516,5 @@ body {
   .cal-label { display: none; }
   .submit-bar { left: 0; flex-direction: column; gap: 10px; }
   .page-title { font-size: 26px; }
+  .cantiere-actions { width: 100%; justify-content: flex-end; padding-top: 4px; }
 }

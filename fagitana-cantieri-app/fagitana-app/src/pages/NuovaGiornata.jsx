@@ -27,7 +27,6 @@ export default function NuovaGiornata() {
   const [oraFine, setOraFine]       = useState('17:00')
   const [oraPausaI, setOraPausaI]   = useState('12:00')
   const [oraPausaF, setOraPausaF]   = useState('13:00')
-  const [avanzamento, setAvanzamento] = useState(0)
   const [noteAttivita, setNoteAttivita]   = useState('')
   const [noteProblemi, setNoteProblemi]   = useState('')
   const [noteProssimi, setNoteProssimi]   = useState('')
@@ -86,7 +85,6 @@ export default function NuovaGiornata() {
       setOraFine(g.ora_fine?.slice(0,5) || '17:00')
       setOraPausaI(g.ora_pausa_inizio?.slice(0,5) || '12:00')
       setOraPausaF(g.ora_pausa_fine?.slice(0,5) || '13:00')
-      setAvanzamento(g.avanzamento || 0)
       setNoteAttivita(g.note_attivita || '')
       setNoteProblemi(g.note_problemi || '')
       setNoteProssimi(g.note_prossimi || '')
@@ -199,7 +197,7 @@ export default function NuovaGiornata() {
         cantiere_id: cantiereId, data, fase, meteo,
         ora_inizio: oraInizio, ora_fine: oraFine,
         ora_pausa_inizio: oraPausaI, ora_pausa_fine: oraPausaF,
-        avanzamento, note_attivita: noteAttivita,
+        note_attivita: noteAttivita,
         note_problemi: noteProblemi, note_prossimi: noteProssimi,
       }
 
@@ -605,11 +603,11 @@ export default function NuovaGiornata() {
         </div>
       )}
 
-      {/* NOTE + AVANZAMENTO */}
+      {/* NOTE */}
       <div className="card">
         <div className="card-header">
           <div className="card-icon">📝</div>
-          <div><div className="card-title">Note & Avanzamento Lavori</div></div>
+          <div><div className="card-title">Note Lavori</div></div>
         </div>
         <div className="card-body">
           <div className="form-grid-2">
@@ -624,17 +622,6 @@ export default function NuovaGiornata() {
               </div>
             </div>
             <div>
-              <div className="form-row">
-                <label className="form-label">Avanzamento Lavori: {avanzamento}%</label>
-                <input
-                  type="range" min={0} max={100} value={avanzamento}
-                  onChange={e => setAvanzamento(Number(e.target.value))}
-                  style={{ width:'100%', accentColor:'var(--green)' }}
-                />
-                <div style={{ textAlign:'center', fontFamily:'var(--font-display)', fontSize:32, fontWeight:900, color:'var(--green)' }}>
-                  {avanzamento}%
-                </div>
-              </div>
               <div className="form-row">
                 <label className="form-label">Prossimi Lavori Previsti</label>
                 <textarea className="form-textarea" value={noteProssimi} onChange={e => setNoteProssimi(e.target.value)} placeholder="Programma per i prossimi giorni…" />

@@ -144,7 +144,7 @@ export default function Cantieri() {
                   </div>
                   {c.note && <div style={{ fontSize:11, color:'#aaa', marginTop:2 }}>{c.note}</div>}
                 </div>
-                <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+                <div className="cantiere-actions">
                   {statoBadge(c.stato)}
                   <button
                     className="btn btn-primary btn-sm"
