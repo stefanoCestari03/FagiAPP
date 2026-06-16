@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 const UM_OPTIONS = ['h', 'm²', 'm³', 'm', 'cad', 'kg', 't', 'a corpo']
 
@@ -52,6 +53,7 @@ export default function CantierDetail() {
   const navigate = useNavigate()
 
   const [cantiere, setCantiere]         = useState(null)
+  const { isAdmin }                      = useAuth()
   const [voci, setVoci]                 = useState([])
   const [avanzamenti, setAvanzamenti]   = useState({}) // { voce_id: { quantita_eseguita, ore_spese } }
   const [oreEffettive, setOreEffettive] = useState(0)
@@ -203,13 +205,15 @@ export default function CantierDetail() {
       {/* ─────────────────────── TAB COMPUTO ─────────────────────── */}
       {tab === 'computo' && (
         <>
+          {isAdmin && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
             <button className="btn btn-primary" onClick={() => setShowForm(s => !s)}>
               {showForm ? '✕ Chiudi form' : '＋ Aggiungi Voce'}
             </button>
           </div>
+          )}
 
-          {showForm && (
+          {isAdmin && showForm && (
             <div className="card" style={{ marginBottom: 20 }}>
               <div className="card-header">
                 <div className="card-icon">📄</div>
@@ -360,6 +364,7 @@ export default function CantierDetail() {
                             </span>
                           </div>
                         </div>
+                        {isAdmin && (
                         <button
                           className="btn btn-danger btn-sm"
                           onClick={() => deleteVoce(v.id)}
@@ -368,6 +373,7 @@ export default function CantierDetail() {
                         >
                           ✕
                         </button>
+                        )}
                       </div>
                     )
                   })}
