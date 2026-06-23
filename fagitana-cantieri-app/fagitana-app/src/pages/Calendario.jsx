@@ -30,7 +30,7 @@ export default function Calendario() {
     const to   = `${year}-${pad(month+1)}-${new Date(year,month+1,0).getDate()}`
     const { data } = await supabase
       .from('giornate')
-      .select('id, data, meteo, avanzamento, fase, cantieri(nome)')
+      .select('id, data, meteo, fase, cantieri(nome)')
       .gte('data', from).lte('data', to)
     const map = {}
     ;(data || []).forEach(g => { map[g.data] = g })
@@ -136,7 +136,7 @@ export default function Calendario() {
                   <>
                     <div className="cal-dot-bar"><div className="cal-dot" /></div>
                     <span className="cal-label">{g.cantieri?.nome?.split('–')[0]?.trim() || g.cantieri?.nome}</span>
-                    <div className="cal-operai">{g.meteo} · {g.avanzamento || 0}%</div>
+                    <div className="cal-operai">{g.meteo}</div>
                   </>
                 )}
               </div>
@@ -293,19 +293,6 @@ export default function Calendario() {
                       </div>
                     </div>
                   )}
-
-                  {/* Avanzamento */}
-                  <div className="modal-section">
-                    <div className="modal-section-title">📊 Avanzamento Lavori</div>
-                    <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                      <div className="progress-wrap">
-                        <div className="progress-fill" style={{ width:`${detail.avanzamento || 0}%` }} />
-                      </div>
-                      <span style={{ fontFamily:'var(--font-display)', fontSize:24, fontWeight:900, color:'var(--green)', minWidth:48 }}>
-                        {detail.avanzamento || 0}%
-                      </span>
-                    </div>
-                  </div>
 
                   {/* Note */}
                   {detail.note_attivita && (
