@@ -135,7 +135,7 @@ export default function Cantieri() {
             </div>
           ) : (
             cantieri.map(c => (
-              <div key={c.id} className="cantiere-row" style={{ cursor:'default' }}>
+              <div key={c.id} className="cantiere-row" onClick={() => navigate(`/cantieri/${c.id}`)} style={{ cursor:'pointer' }}>
                 <div style={{ fontSize:28 }}>🏗️</div>
                 <div style={{ flex:1 }}>
                   <div className="cantiere-name">{c.nome}</div>
@@ -144,15 +144,8 @@ export default function Cantieri() {
                   </div>
                   {c.note && <div style={{ fontSize:11, color:'#aaa', marginTop:2 }}>{c.note}</div>}
                 </div>
-                <div className="cantiere-actions">
+                <div className="cantiere-actions" onClick={e => e.stopPropagation()}>
                   {statoBadge(c.stato)}
-                  <button
-                    className="btn btn-primary btn-sm"
-                    onClick={() => navigate(`/cantieri/${c.id}`)}
-                    title="Vedi computo e avanzamento"
-                  >
-                    📊 Computo
-                  </button>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => toggleStato(c)}
