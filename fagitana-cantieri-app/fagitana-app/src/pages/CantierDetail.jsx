@@ -61,6 +61,7 @@ export default function CantierDetail() {
   const [loading, setLoading]           = useState(true)
   const [toast, setToast]               = useState(null)
   const [showForm, setShowForm]         = useState(false)
+  const [editingId, setEditingId]       = useState(null)
   const [saving, setSaving]             = useState(false)
   const [form, setForm]                 = useState(EMPTY_FORM)
 
@@ -110,26 +111,46 @@ export default function CantierDetail() {
 
   useEffect(() => { load() }, [load])
 
+  function startEdit(v) {
+    setForm({
+      categoria:       v.categoria || '',
+      descrizione:     v.descrizione,
+      unita_misura:    v.unita_misura,
+      quantita_totale: String(v.quantita_totale),
+      ore_preventivo:  v.ore_preventivo ? String(v.ore_preventivo) : '',
+      prezzo_unitario: v.prezzo_unitario ? String(v.prezzo_unitario) : '',
+    })
+    setEditingId(v.id)
+    setShowForm(true)
+  }
+
+  function closeForm() {
+    setShowForm(false)
+    setEditingId(null)
+    setForm(EMPTY_FORM)
+  }
+
   async function handleSaveVoce() {
     if (!form.descrizione.trim()) { setToast('⚠️ Inserisci la descrizione'); return }
     if (!form.quantita_totale || isNaN(Number(form.quantita_totale))) {
       setToast('⚠️ Inserisci una quantità valida'); return
     }
     setSaving(true)
-    const { error } = await supabase.from('voci_computo').insert({
-      cantiere_id:     id,
+    const payload = {
       categoria:       form.categoria.trim() || 'GENERALE',
       descrizione:     form.descrizione.trim(),
       unita_misura:    form.unita_misura,
       quantita_totale: Number(form.quantita_totale),
       ore_preventivo:  Number(form.ore_preventivo) || 0,
       prezzo_unitario: form.prezzo_unitario ? Number(form.prezzo_unitario) : null,
-    })
+    }
+    const { error } = editingId
+      ? await supabase.from('voci_computo').update(payload).eq('id', editingId)
+      : await supabase.from('voci_computo').insert({ ...payload, cantiere_id: id })
     if (error) setToast('❌ Errore nel salvataggio')
     else {
-      setToast('✅ Voce aggiunta!')
-      setForm(EMPTY_FORM)
-      setShowForm(false)
+      setToast(editingId ? '✅ Voce aggiornata!' : '✅ Voce aggiunta!')
+      closeForm()
       load()
     }
     setSaving(false)
@@ -207,7 +228,7 @@ export default function CantierDetail() {
         <>
           {isAdmin && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-            <button className="btn btn-primary" onClick={() => setShowForm(s => !s)}>
+            <button className="btn btn-primary" onClick={() => showForm ? closeForm() : (setShowForm(true), setEditingId(null), setForm(EMPTY_FORM))}>
               {showForm ? '✕ Chiudi form' : '＋ Aggiungi Voce'}
             </button>
           </div>
@@ -218,8 +239,8 @@ export default function CantierDetail() {
               <div className="card-header">
                 <div className="card-icon">📄</div>
                 <div>
-                  <div className="card-title">Nuova Voce di Computo</div>
-                  <div className="card-subtitle">Aggiungi una lavorazione al preventivo</div>
+                  <div className="card-title">{editingId ? 'Modifica Voce' : 'Nuova Voce di Computo'}</div>
+                  <div className="card-subtitle">{editingId ? 'Aggiorna i dati della lavorazione' : 'Aggiungi una lavorazione al preventivo'}</div>
                 </div>
               </div>
               <div className="card-body">
@@ -293,11 +314,11 @@ export default function CantierDetail() {
                 </div>
 
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 }}>
-                  <button className="btn btn-secondary" onClick={() => { setShowForm(false); setForm(EMPTY_FORM) }}>
+                  <button className="btn btn-secondary" onClick={closeForm}>
                     Annulla
                   </button>
                   <button className="btn btn-primary" onClick={handleSaveVoce} disabled={saving}>
-                    {saving ? '⏳ Salvataggio...' : '💾 Aggiungi Voce'}
+                    {saving ? '⏳ Salvataggio...' : editingId ? '💾 Salva Modifiche' : '💾 Aggiungi Voce'}
                   </button>
                 </div>
               </div>
@@ -365,14 +386,22 @@ export default function CantierDetail() {
                           </div>
                         </div>
                         {isAdmin && (
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => deleteVoce(v.id)}
-                          title="Elimina voce"
-                          style={{ flexShrink: 0 }}
-                        >
-                          ✕
-                        </button>
+                        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => startEdit(v)}
+                            title="Modifica voce"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => deleteVoce(v.id)}
+                            title="Elimina voce"
+                          >
+                            ✕
+                          </button>
+                        </div>
                         )}
                       </div>
                     )
