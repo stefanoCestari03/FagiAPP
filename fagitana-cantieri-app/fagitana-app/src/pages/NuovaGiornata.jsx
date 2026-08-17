@@ -23,7 +23,7 @@ export default function NuovaGiornata() {
   const [data, setData]             = useState(today)
   const [fase, setFase]             = useState('')
   const [meteo, setMeteo]           = useState('☀️ Sole')
-  const [oraInizio, setOraInizio]   = useState('07:00')
+  const [oraInizio, setOraInizio]   = useState('07:30')
   const [oraFine, setOraFine]       = useState('17:00')
   const [oraPausaI, setOraPausaI]   = useState('12:00')
   const [oraPausaF, setOraPausaF]   = useState('13:00')
@@ -81,7 +81,7 @@ export default function NuovaGiornata() {
       setData(g.data)
       setFase(g.fase || '')
       setMeteo(g.meteo || '☀️ Sole')
-      setOraInizio(g.ora_inizio?.slice(0,5) || '07:00')
+      setOraInizio(g.ora_inizio?.slice(0,5) || '07:30')
       setOraFine(g.ora_fine?.slice(0,5) || '17:00')
       setOraPausaI(g.ora_pausa_inizio?.slice(0,5) || '12:00')
       setOraPausaF(g.ora_pausa_fine?.slice(0,5) || '13:00')
@@ -114,7 +114,7 @@ export default function NuovaGiornata() {
         operaio_id: p.operaio_id || null,
         nome: p.nome_jolly || `${p.operai?.nome} ${p.operai?.cognome}`,
         stato: p.stato,
-        entrata: p.ora_entrata?.slice(0,5) || '07:00',
+        entrata: p.ora_entrata?.slice(0,5) || '07:30',
         uscita:  p.ora_uscita?.slice(0,5)  || '17:00',
         isJolly: !p.operaio_id,
       })) || [])
