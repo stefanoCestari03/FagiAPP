@@ -43,7 +43,14 @@ export default function NuovaGiornata() {
 
   // COMPUTO: voci del cantiere selezionato + avanzamento di oggi
   const [vociCantiere, setVociCantiere]       = useState([])
-  const [avanzamentoOggi, setAvanzamentoOggi] = useState({}) // { voce_id: { quantita: '', ore: '' } }
+  const [vociLoading, setVociLoading]         = useState(false)
+  // { voce_id: { quantita: '', ore: '', oreOperai: { [chiaveOperaio]: '' } } }
+  // "ore" è usato solo se non ci sono operai in presenza (fallback aggregato);
+  // se ci sono operai, le ore vanno assegnate singolarmente in "oreOperai".
+  const [avanzamentoOggi, setAvanzamentoOggi] = useState({})
+
+  // Chiave stabile per identificare un operaio/jolly nelle mappe di avanzamento
+  const keyOperaio = (p) => p.operaio_id ? `op:${p.operaio_id}` : `jolly:${p.nome}`
 
   const [saving, setSaving]   = useState(false)
   const [toast, setToast]     = useState(null)
@@ -59,14 +66,16 @@ export default function NuovaGiornata() {
 
   // ── Carica voci computo quando cambia il cantiere (solo in modalità crea) ─
   const loadVociCantiere = useCallback(async (cId) => {
-    if (!cId) { setVociCantiere([]); setAvanzamentoOggi({}); return }
+    if (!cId) { setVociCantiere([]); setAvanzamentoOggi({}); setVociLoading(false); return }
+    setVociLoading(true)
     const { data } = await supabase
       .from('voci_computo').select('*').eq('cantiere_id', cId)
       .order('categoria').order('created_at')
     setVociCantiere(data || [])
     const init = {}
-    for (const v of data || []) init[v.id] = { quantita: '', ore: '' }
+    for (const v of data || []) init[v.id] = { quantita: '', ore: '', oreOperai: {} }
     setAvanzamentoOggi(init)
+    setVociLoading(false)
   }, [])
 
   // ── Carica giornata esistente (modalità modifica) ─────────────────────────
@@ -98,15 +107,23 @@ export default function NuovaGiornata() {
       setVociCantiere(vociData || [])
 
       const { data: avOggi } = await supabase
-        .from('avanzamento_giornaliero').select('voce_id, quantita_eseguita, ore_spese')
+        .from('avanzamento_giornaliero')
+        .select('voce_id, quantita_eseguita, ore_spese, operaio_id, nome_jolly')
         .eq('giornata_id', id)
       const avMap = {}
       for (const a of avOggi || []) {
-        avMap[a.voce_id] = { quantita: String(a.quantita_eseguita || ''), ore: String(a.ore_spese || '') }
+        if (!avMap[a.voce_id]) avMap[a.voce_id] = { quantita: '', ore: '', oreOperai: {} }
+        if (a.operaio_id || a.nome_jolly) {
+          const k = a.operaio_id ? `op:${a.operaio_id}` : `jolly:${a.nome_jolly}`
+          avMap[a.voce_id].oreOperai[k] = String(a.ore_spese || '')
+        } else {
+          if (Number(a.quantita_eseguita) > 0) avMap[a.voce_id].quantita = String(a.quantita_eseguita)
+          if (Number(a.ore_spese) > 0) avMap[a.voce_id].ore = String(a.ore_spese)
+        }
       }
       // Assicura che tutte le voci abbiano un'entry inizializzata
       for (const v of vociData || []) {
-        if (!avMap[v.id]) avMap[v.id] = { quantita: '', ore: '' }
+        if (!avMap[v.id]) avMap[v.id] = { quantita: '', ore: '', oreOperai: {} }
       }
       setAvanzamentoOggi(avMap)
 
@@ -224,16 +241,44 @@ export default function NuovaGiornata() {
         ora_uscita:   p.stato !== 'assente' ? p.uscita  : null,
       }))
 
-      // Avanzamento giornaliero: solo voci con almeno quantità o ore > 0
-      const avanzamentoPayload = Object.entries(avanzamentoOggi)
-        .filter(([, v]) => (Number(v.quantita) > 0) || (Number(v.ore) > 0))
-        .map(([voceId, v]) => ({
-          voce_id:           voceId,
-          giornata_id:       giornataId,
-          cantiere_id:       cantiereId,
-          quantita_eseguita: Number(v.quantita) || 0,
-          ore_spese:         Number(v.ore) || 0,
-        }))
+      // Avanzamento giornaliero: quantità resta aggregata per voce;
+      // le ore, se ci sono operai in presenza, vengono spezzate una riga per operaio
+      // (per non contare due volte le stesse ore tra riga aggregata e righe per operaio)
+      const avanzamentoPayload = []
+      for (const v of vociCantiere) {
+        const av = avanzamentoOggi[v.id] || { quantita: '', ore: '', oreOperai: {} }
+        const quantita = Number(av.quantita) || 0
+
+        if (presenze.length > 0) {
+          if (quantita > 0) {
+            avanzamentoPayload.push({
+              voce_id: v.id, giornata_id: giornataId, cantiere_id: cantiereId,
+              quantita_eseguita: quantita, ore_spese: 0,
+              operaio_id: null, nome_jolly: null,
+            })
+          }
+          for (const p of presenze) {
+            const ore = Number(av.oreOperai?.[keyOperaio(p)]) || 0
+            if (ore > 0) {
+              avanzamentoPayload.push({
+                voce_id: v.id, giornata_id: giornataId, cantiere_id: cantiereId,
+                quantita_eseguita: 0, ore_spese: ore,
+                operaio_id: p.isJolly ? null : p.operaio_id,
+                nome_jolly: p.isJolly ? p.nome : null,
+              })
+            }
+          }
+        } else {
+          const ore = Number(av.ore) || 0
+          if (quantita > 0 || ore > 0) {
+            avanzamentoPayload.push({
+              voce_id: v.id, giornata_id: giornataId, cantiere_id: cantiereId,
+              quantita_eseguita: quantita, ore_spese: ore,
+              operaio_id: null, nome_jolly: null,
+            })
+          }
+        }
+      }
 
       await Promise.all([
         presenze.length > 0 && supabase.from('presenze').insert(presenzePayload),
@@ -523,79 +568,133 @@ export default function NuovaGiornata() {
       </div>
 
       {/* AVANZAMENTO VOCI DI COMPUTO */}
+      {cantiereId && !vociLoading && vociCantiere.length === 0 && (
+        <div className="card" style={{ borderLeft: '4px solid var(--red)' }}>
+          <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: 28 }}>⚠️</div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>Nessuna voce di computo per questo cantiere</div>
+              <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                Aggiungile dal dettaglio cantiere per poter registrare avanzamento e ore per lavorazione.
+              </div>
+            </div>
+            <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/cantieri/${cantiereId}`)}>
+              Vai al cantiere
+            </button>
+          </div>
+        </div>
+      )}
+
       {vociCantiere.length > 0 && (
         <div className="card">
           <div className="card-header">
             <div className="card-icon">📊</div>
             <div>
               <div className="card-title">Avanzamento Voci di Computo</div>
-              <div className="card-subtitle">Indica quantità eseguite oggi e ore spese per ogni lavorazione</div>
+              <div className="card-subtitle">
+                {presenze.length > 0
+                  ? 'Quantità eseguite oggi e ore per operaio su ogni lavorazione'
+                  : 'Indica quantità eseguite oggi e ore spese per ogni lavorazione'}
+              </div>
             </div>
             <span className="badge badge-dark" style={{ marginLeft: 'auto' }}>
               {vociCantiere.length} voci
             </span>
           </div>
           <div className="card-body" style={{ padding: 0 }}>
-            {/* Intestazione colonne */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 120px 120px',
-              gap: 8, padding: '8px 20px',
-              background: 'var(--dark)', borderBottom: '1px solid #333',
-            }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: 1 }}>
-                Voce
-              </span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>
-                Qtà oggi
-              </span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>
-                Ore oggi
-              </span>
-            </div>
             {vociCantiere.map((v, i) => {
-              const av = avanzamentoOggi[v.id] || { quantita: '', ore: '' }
+              const av = avanzamentoOggi[v.id] || { quantita: '', ore: '', oreOperai: {} }
+              const totaleOreOperai = Object.values(av.oreOperai || {}).reduce((s, x) => s + (Number(x) || 0), 0)
+              const attiva = presenze.length > 0
+                ? (Number(av.quantita) > 0 || totaleOreOperai > 0)
+                : (Number(av.quantita) > 0 || Number(av.ore) > 0)
               return (
                 <div
                   key={v.id}
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 120px 120px',
-                    gap: 8, padding: '10px 20px',
-                    alignItems: 'center',
+                    padding: '10px 20px',
                     borderBottom: i < vociCantiere.length - 1 ? '1px solid var(--border)' : 'none',
-                    background: (Number(av.quantita) > 0 || Number(av.ore) > 0) ? 'var(--green-light)' : 'white',
+                    background: attiva ? 'var(--green-light)' : 'white',
                   }}
                 >
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 13 }}>{v.descrizione}</div>
-                    <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>
-                      {v.categoria} · {v.unita_misura}
-                      {v.ore_preventivo > 0 && ` · ${v.ore_preventivo}h prev.`}
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ flex: '1 1 220px' }}>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{v.descrizione}</div>
+                      <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>
+                        {v.categoria} · {v.unita_misura}
+                        {v.ore_preventivo > 0 && ` · ${v.ore_preventivo}h prev.`}
+                      </div>
                     </div>
+                    <div style={{ width: 110 }}>
+                      <label style={{ fontSize: 10, color: '#999', textTransform: 'uppercase', letterSpacing: .5, display: 'block', marginBottom: 3 }}>
+                        Qtà oggi
+                      </label>
+                      <input
+                        className="form-input"
+                        type="number" min="0" step="0.01"
+                        placeholder={`0 ${v.unita_misura}`}
+                        value={av.quantita}
+                        onChange={e => setAvanzamentoOggi(prev => ({
+                          ...prev,
+                          [v.id]: { ...prev[v.id], quantita: e.target.value }
+                        }))}
+                        style={{ textAlign: 'center', padding: '6px 8px', fontSize: 13 }}
+                      />
+                    </div>
+                    {presenze.length === 0 && (
+                      <div style={{ width: 110 }}>
+                        <label style={{ fontSize: 10, color: '#999', textTransform: 'uppercase', letterSpacing: .5, display: 'block', marginBottom: 3 }}>
+                          Ore oggi
+                        </label>
+                        <input
+                          className="form-input"
+                          type="number" min="0" step="0.5"
+                          placeholder="0 h"
+                          value={av.ore}
+                          onChange={e => setAvanzamentoOggi(prev => ({
+                            ...prev,
+                            [v.id]: { ...prev[v.id], ore: e.target.value }
+                          }))}
+                          style={{ textAlign: 'center', padding: '6px 8px', fontSize: 13 }}
+                        />
+                      </div>
+                    )}
                   </div>
-                  <input
-                    className="form-input"
-                    type="number" min="0" step="0.01"
-                    placeholder={`0 ${v.unita_misura}`}
-                    value={av.quantita}
-                    onChange={e => setAvanzamentoOggi(prev => ({
-                      ...prev,
-                      [v.id]: { ...prev[v.id], quantita: e.target.value }
-                    }))}
-                    style={{ textAlign: 'center', padding: '6px 8px', fontSize: 13 }}
-                  />
-                  <input
-                    className="form-input"
-                    type="number" min="0" step="0.5"
-                    placeholder="0 h"
-                    value={av.ore}
-                    onChange={e => setAvanzamentoOggi(prev => ({
-                      ...prev,
-                      [v.id]: { ...prev[v.id], ore: e.target.value }
-                    }))}
-                    style={{ textAlign: 'center', padding: '6px 8px', fontSize: 13 }}
-                  />
+
+                  {presenze.length > 0 && (
+                    <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px dashed var(--border)' }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 6 }}>
+                        Ore su questa voce per operaio
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {presenze.filter(p => p.stato !== 'assente').map(p => {
+                          const k = keyOperaio(p)
+                          const val = av.oreOperai?.[k] || ''
+                          return (
+                            <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f7f7f7', border: '1px solid var(--border)', borderRadius: 6, padding: '4px 8px' }}>
+                              <span style={{ fontSize: 12, fontWeight: 600 }}>{p.nome}</span>
+                              <input
+                                type="number" min="0" step="0.5"
+                                placeholder="0h"
+                                value={val}
+                                onChange={e => setAvanzamentoOggi(prev => ({
+                                  ...prev,
+                                  [v.id]: {
+                                    ...prev[v.id],
+                                    oreOperai: { ...(prev[v.id]?.oreOperai || {}), [k]: e.target.value }
+                                  }
+                                }))}
+                                style={{ width: 50, padding: '3px 4px', fontSize: 12, textAlign: 'center', border: '1px solid #ddd', borderRadius: 4 }}
+                              />
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#999', marginTop: 6 }}>
+                        Totale ore assegnate: <strong>{totaleOreOperai}h</strong>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )
             })}
