@@ -7,9 +7,6 @@ import Calendario from './pages/Calendario'
 import NuovaGiornata from './pages/NuovaGiornata'
 import Cantieri from './pages/Cantieri'
 import CantierDetail from './pages/CantierDetail'
-import SubscriptionExpired from './pages/SubscriptionExpired'
-
-const UNRESTRICTED_EMAIL = 'stefano.cestari2203@gmail.com'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -19,9 +16,7 @@ function PrivateRoute({ children }) {
       <span>Caricamento...</span>
     </div>
   )
-  if (!user) return <Navigate to="/login" replace />
-  if (user.email?.toLowerCase() !== UNRESTRICTED_EMAIL) return <SubscriptionExpired />
-  return children
+  return user ? children : <Navigate to="/login" replace />
 }
 
 function AppRoutes() {
