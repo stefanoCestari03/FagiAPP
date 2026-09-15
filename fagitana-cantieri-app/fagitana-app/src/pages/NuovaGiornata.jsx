@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 const METEO_OPT = ['☀️ Sole','⛅ Nuvoloso','🌧️ Pioggia','❄️ Neve','💨 Vento forte']
@@ -12,15 +12,17 @@ function Toast({ msg, onDone }) {
 export default function NuovaGiornata() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const isEdit = Boolean(id)
 
   const today = new Date().toISOString().split('T')[0]
+  const initialData = searchParams.get('data') || today
 
   // FORM STATE
   const [cantieri, setCantieri]     = useState([])
   const [operaiDB, setOperaiDB]     = useState([])
   const [cantiereId, setCantiereId] = useState('')
-  const [data, setData]             = useState(today)
+  const [data, setData]             = useState(initialData)
   const [fase, setFase]             = useState('')
   const [meteo, setMeteo]           = useState('☀️ Sole')
   const [oraInizio, setOraInizio]   = useState('07:30')

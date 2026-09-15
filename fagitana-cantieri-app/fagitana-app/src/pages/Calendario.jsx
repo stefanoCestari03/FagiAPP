@@ -16,8 +16,9 @@ export default function Calendario() {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
-  const [giornate, setGiornate] = useState({})
+  const [giornate, setGiornate] = useState({}) // { data: [giornata, ...] }
   const [loading, setLoading] = useState(false)
+  const [dayList, setDayList] = useState(null) // { key, items } quando un giorno ha più registrazioni
   const [selected, setSelected] = useState(null)
   const [detail, setDetail] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -33,15 +34,25 @@ export default function Calendario() {
       .select('id, data, meteo, fase, cantieri(nome)')
       .gte('data', from).lte('data', to)
     const map = {}
-    ;(data || []).forEach(g => { map[g.data] = g })
+    ;(data || []).forEach(g => {
+      if (!map[g.data]) map[g.data] = []
+      map[g.data].push(g)
+    })
     setGiornate(map)
     setLoading(false)
   }, [year, month])
 
   useEffect(() => { fetchMonth() }, [fetchMonth])
 
-  async function openDetail(key) {
-    setSelected(key)
+  function handleDayClick(key) {
+    const items = giornate[key]
+    if (!items || items.length === 0) return
+    if (items.length === 1) openGiornata(items[0].id)
+    else setDayList({ key, items })
+  }
+
+  async function openGiornata(giornataId) {
+    setSelected(giornataId)
     setDetailLoading(true)
     const { data } = await supabase
       .from('giornate')
@@ -52,10 +63,17 @@ export default function Calendario() {
         materiali(nome, quantita),
         mezzi(nome, utilizzo)
       `)
-      .eq('data', key)
+      .eq('id', giornataId)
       .single()
     setDetail(data)
     setDetailLoading(false)
+  }
+
+  // Torna alla lista delle registrazioni del giorno (se presente) senza chiudere tutto
+  function backToDayList() {
+    setSelected(null)
+    setDetail(null)
+    setConfirmDelete(false)
   }
 
   async function handleDelete() {
@@ -67,6 +85,7 @@ export default function Calendario() {
     setSelected(null)
     setDetail(null)
     setConfirmDelete(false)
+    setDayList(null)
     fetchMonth()
   }
 
@@ -74,6 +93,7 @@ export default function Calendario() {
     setSelected(null)
     setDetail(null)
     setConfirmDelete(false)
+    setDayList(null)
   }
 
   function changeMonth(dir) {
@@ -122,21 +142,30 @@ export default function Calendario() {
         <div className="cal-body">
           {cells.map((cell, i) => {
             const key = cell.cur ? dateKey(year, month, cell.day) : null
-            const g = key && giornate[key]
+            const list = key && giornate[key]
+            const g = list?.[0]
             const isToday = key === todayKey
             return (
               <div
                 key={i}
                 className={`cal-cell${!cell.cur?' other-month':''}${isToday?' today':''}`}
-                onClick={() => cell.cur && g && openDetail(key)}
-                style={cell.cur && !g ? { cursor:'default' } : {}}
+                onClick={() => cell.cur && list && handleDayClick(key)}
+                style={cell.cur && !list ? { cursor:'default' } : {}}
               >
                 <div className="cal-num">{cell.day}</div>
-                {g && (
+                {list && (
                   <>
                     <div className="cal-dot-bar"><div className="cal-dot" /></div>
-                    <span className="cal-label">{g.cantieri?.nome?.split('–')[0]?.trim() || g.cantieri?.nome}</span>
-                    <div className="cal-operai">{g.meteo}</div>
+                    <span className="cal-label">
+                      {list.length === 1
+                        ? (g.cantieri?.nome?.split('–')[0]?.trim() || g.cantieri?.nome)
+                        : `${list.length} cantieri`}
+                    </span>
+                    <div className="cal-operai">
+                      {list.length === 1
+                        ? g.meteo
+                        : list.map(x => x.cantieri?.nome?.split('–')[0]?.trim() || x.cantieri?.nome).join(' · ')}
+                    </div>
                   </>
                 )}
               </div>
@@ -156,6 +185,49 @@ export default function Calendario() {
         </div>
       </div>
 
+      {/* MODAL: elenco registrazioni del giorno (quando ce n'è più di una) */}
+      {dayList && !selected && (
+        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setDayList(null)}>
+          <div className="modal" style={{ maxWidth: 420 }}>
+            <div className="modal-header">
+              <div>
+                <div className="modal-title">Registrazioni del giorno</div>
+                <div style={{ color:'#888', fontSize:12, marginTop:3 }}>
+                  {new Date(dayList.key).toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}
+                </div>
+              </div>
+              <button className="modal-close" onClick={() => setDayList(null)}>✕</button>
+            </div>
+            <div className="modal-body">
+              {dayList.items.map(item => (
+                <div
+                  key={item.id}
+                  onClick={() => openGiornata(item.id)}
+                  style={{
+                    display:'flex', justifyContent:'space-between', alignItems:'center',
+                    padding:'12px 14px', border:'1px solid var(--border)', borderRadius:8,
+                    marginBottom:8, cursor:'pointer', background:'#fafafa',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight:700, fontSize:14 }}>{item.cantieri?.nome || '–'}</div>
+                    <div style={{ fontSize:12, color:'#888', marginTop:2 }}>{item.fase || 'Nessuna fase indicata'}</div>
+                  </div>
+                  <span style={{ fontSize:18, color:'#ccc' }}>›</span>
+                </div>
+              ))}
+              <button
+                className="btn btn-primary btn-sm"
+                style={{ width:'100%', marginTop:4 }}
+                onClick={() => { setDayList(null); navigate(`/registrazione?data=${dayList.key}`) }}
+              >
+                ＋ Nuova registrazione per questo giorno
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL */}
       {selected && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && closeModal()}>
@@ -172,6 +244,11 @@ export default function Calendario() {
                 )}
               </div>
               <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                {dayList && !confirmDelete && (
+                  <button className="btn btn-secondary btn-sm" onClick={backToDayList}>
+                    ← Altre di oggi
+                  </button>
+                )}
                 {detail && !confirmDelete && (
                   <button className="btn btn-secondary btn-sm" onClick={() => { closeModal(); navigate(`/registrazione/${detail.id}`) }}>
                     ✏️ Modifica
