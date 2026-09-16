@@ -1,4 +1,5 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { CHANGELOG } from '../changelog'
 
 export default function UpdateToast() {
   const {
@@ -27,9 +28,15 @@ export default function UpdateToast() {
       }}
     >
       <div style={{ fontSize: 22 }}>🔄</div>
-      <div style={{ flex: 1, minWidth: 160 }}>
+      <div style={{ flex: 1, minWidth: 200 }}>
         <div style={{ fontWeight: 700, fontSize: 14 }}>Nuova versione disponibile</div>
-        <div style={{ fontSize: 12, color: '#aaa', marginTop: 2 }}>Ci sono aggiornamenti all'app</div>
+        {CHANGELOG.length > 0 ? (
+          <ul style={{ fontSize: 12, color: '#aaa', marginTop: 4, paddingLeft: 16 }}>
+            {CHANGELOG.map((riga, i) => <li key={i}>{riga}</li>)}
+          </ul>
+        ) : (
+          <div style={{ fontSize: 12, color: '#aaa', marginTop: 2 }}>Ci sono aggiornamenti all'app</div>
+        )}
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <button

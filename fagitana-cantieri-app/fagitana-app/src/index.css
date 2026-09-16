@@ -21,6 +21,10 @@
   --font-body: 'Barlow', sans-serif;
   --sidebar-w: 220px;
   --topbar-h: 56px;
+  /* Aree sicure iOS (notch / Dynamic Island / home indicator) quando l'app
+     è aperta come shortcut da Safari in modalità standalone */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,11 +44,11 @@ body {
 
 .topbar {
   position: fixed; top: 0; left: 0; right: 0;
-  height: var(--topbar-h);
+  height: calc(var(--topbar-h) + var(--safe-top));
   background: var(--dark);
   border-bottom: 3px solid var(--green);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px;
+  padding: var(--safe-top) 20px 0;
   z-index: 100;
 }
 .topbar-logo {
@@ -70,7 +74,7 @@ body {
 .btn-logout:hover { border-color: var(--red); color: var(--red); }
 
 .sidebar {
-  position: fixed; top: var(--topbar-h); left: 0; bottom: 0;
+  position: fixed; top: calc(var(--topbar-h) + var(--safe-top)); left: 0; bottom: 0;
   width: var(--sidebar-w);
   background: var(--mid);
   overflow-y: auto;
@@ -98,12 +102,12 @@ body {
 .nav-icon { font-size: 17px; width: 22px; text-align: center; }
 
 .main-content {
-  margin-top: var(--topbar-h);
+  margin-top: calc(var(--topbar-h) + var(--safe-top));
   margin-left: var(--sidebar-w);
   flex: 1;
   overflow-y: auto;
-  padding: 28px 28px 100px;
-  min-height: calc(100vh - var(--topbar-h));
+  padding: 28px 28px calc(100px + var(--safe-bottom));
+  min-height: calc(100vh - var(--topbar-h) - var(--safe-top));
 }
 
 /* ── HAMBURGER (mobile) ── */
@@ -453,7 +457,7 @@ body {
 .submit-bar {
   position: fixed; bottom: 0; left: var(--sidebar-w); right: 0;
   background: var(--white); border-top: 1px solid var(--border);
-  padding: 14px 28px;
+  padding: 14px 28px calc(14px + var(--safe-bottom));
   display: flex; align-items: center; justify-content: space-between;
   box-shadow: 0 -4px 16px rgba(0,0,0,.06); z-index: 50;
 }
@@ -500,7 +504,7 @@ body {
   }
   .sidebar.open { transform: translateX(0); }
   .hamburger { display: flex; }
-  .main-content { padding: 16px 14px 100px; }
+  .main-content { padding: 16px 14px calc(100px + var(--safe-bottom)); }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
   .form-grid-2 { grid-template-columns: 1fr; }

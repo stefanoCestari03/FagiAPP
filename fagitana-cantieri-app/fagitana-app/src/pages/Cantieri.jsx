@@ -17,6 +17,7 @@ export default function Cantieri() {
   const [toast, setToast] = useState(null)
   const [filtro, setFiltro] = useState('attivo')
   const [form, setForm] = useState({ nome:'', indirizzo:'', comune:'', fase:'', note:'' })
+  const [editingId, setEditingId] = useState(null)
 
   useEffect(() => { fetchCantieri() }, [filtro])
 
@@ -32,15 +33,31 @@ export default function Cantieri() {
   async function handleSave() {
     if (!form.nome.trim()) { setToast('⚠️ Inserisci il nome del cantiere'); return }
     setSaving(true)
-    const { error } = await supabase.from('cantieri').insert({ ...form, stato: 'attivo' })
+    const { error } = editingId
+      ? await supabase.from('cantieri').update({ ...form }).eq('id', editingId)
+      : await supabase.from('cantieri').insert({ ...form, stato: 'attivo' })
     if (error) setToast('❌ Errore nel salvataggio')
     else {
-      setToast('✅ Cantiere aggiunto!')
-      setForm({ nome:'', indirizzo:'', comune:'', fase:'', note:'' })
-      setShowForm(false)
+      setToast(editingId ? '✅ Cantiere aggiornato!' : '✅ Cantiere aggiunto!')
+      closeForm()
       fetchCantieri()
     }
     setSaving(false)
+  }
+
+  function startEdit(c) {
+    setForm({
+      nome: c.nome || '', indirizzo: c.indirizzo || '',
+      comune: c.comune || '', fase: c.fase || '', note: c.note || '',
+    })
+    setEditingId(c.id)
+    setShowForm(true)
+  }
+
+  function closeForm() {
+    setForm({ nome:'', indirizzo:'', comune:'', fase:'', note:'' })
+    setEditingId(null)
+    setShowForm(false)
   }
 
   async function toggleStato(c) {
@@ -62,17 +79,17 @@ export default function Cantieri() {
 
       <div className="page-header">
         <div className="page-title">Cantieri<small>Gestisci i cantieri attivi e archiviati</small></div>
-        <button className="btn btn-primary" onClick={() => setShowForm(s => !s)}>
+        <button className="btn btn-primary" onClick={() => (showForm ? closeForm() : setShowForm(true))}>
           {showForm ? '✕ Chiudi' : '＋ Nuovo Cantiere'}
         </button>
       </div>
 
-      {/* FORM NUOVO CANTIERE */}
+      {/* FORM NUOVO/MODIFICA CANTIERE */}
       {showForm && (
         <div className="card" style={{ marginBottom: 20 }}>
           <div className="card-header">
             <div className="card-icon">🏗️</div>
-            <div><div className="card-title">Aggiungi Cantiere</div></div>
+            <div><div className="card-title">{editingId ? 'Modifica Cantiere' : 'Aggiungi Cantiere'}</div></div>
           </div>
           <div className="card-body">
             <div className="form-grid-2">
@@ -105,9 +122,9 @@ export default function Cantieri() {
               <textarea className="form-textarea" style={{ minHeight:60 }} value={form.note} onChange={e => setForm(f=>({...f,note:e.target.value}))} placeholder="Informazioni aggiuntive…" />
             </div>
             <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
-              <button className="btn btn-secondary" onClick={() => setShowForm(false)}>Annulla</button>
+              <button className="btn btn-secondary" onClick={closeForm}>Annulla</button>
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? 'Salvataggio...' : '💾 Salva Cantiere'}
+                {saving ? 'Salvataggio...' : editingId ? '💾 Aggiorna Cantiere' : '💾 Salva Cantiere'}
               </button>
             </div>
           </div>
@@ -146,6 +163,13 @@ export default function Cantieri() {
                 </div>
                 <div className="cantiere-actions" onClick={e => e.stopPropagation()}>
                   {statoBadge(c.stato)}
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => startEdit(c)}
+                    title="Modifica cantiere"
+                  >
+                    ✏️ Modifica
+                  </button>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => toggleStato(c)}
