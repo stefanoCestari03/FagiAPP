@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import TutorialCard from '../components/TutorialCard'
 
 
 function Toast({ msg, onDone }) {
@@ -83,6 +84,13 @@ export default function Cantieri() {
           {showForm ? '✕ Chiudi' : '＋ Nuovo Cantiere'}
         </button>
       </div>
+
+      {showForm && !editingId && (
+        <TutorialCard flagKey="tutorial_cantiere" icon="🏗️" title="Crei il tuo primo cantiere">
+          Compila nome e comune (obbligatorio solo il nome), poi salva. Dal dettaglio del cantiere
+          potrai poi aggiungere le <strong>voci di computo</strong> per tracciare l'avanzamento lavori.
+        </TutorialCard>
+      )}
 
       {/* FORM NUOVO/MODIFICA CANTIERE */}
       {showForm && (

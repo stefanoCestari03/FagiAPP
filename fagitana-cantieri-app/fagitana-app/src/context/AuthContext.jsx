@@ -27,10 +27,22 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut()
   }
 
+  // Flag "tutorial visto" salvati sull'account (user_metadata di Supabase Auth),
+  // così valgono per l'utente su qualsiasi dispositivo e non solo sul browser corrente.
+  const hasSeenTutorial = (key) => Boolean(user?.user_metadata?.[key])
+
+  const markTutorialSeen = async (key) => {
+    if (!user || hasSeenTutorial(key)) return
+    const { data, error } = await supabase.auth.updateUser({
+      data: { ...user.user_metadata, [key]: true },
+    })
+    if (!error && data?.user) setUser(data.user)
+  }
+
   const isAdmin = user?.user_metadata?.role === 'admin'
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut, isAdmin, hasSeenTutorial, markTutorialSeen }}>
       {children}
     </AuthContext.Provider>
   )

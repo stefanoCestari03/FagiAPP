@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import TutorialCard from '../components/TutorialCard'
 
 const METEO_OPT = ['☀️ Sole','⛅ Nuvoloso','🌧️ Pioggia','❄️ Neve','💨 Vento forte']
 
@@ -329,6 +330,14 @@ export default function NuovaGiornata() {
         </div>
       </div>
 
+      {!isEdit && (
+        <TutorialCard flagKey="tutorial_giornata" icon="📋" title="Crei la tua prima registrazione">
+          Seleziona cantiere e data, imposta gli orari, poi aggiungi gli operai presenti dalla lista
+          o come "jolly" se esterni. In fondo trovi materiali, mezzi e note. Se il cantiere ha voci
+          di computo potrai anche registrare quante ore ha lavorato ciascun operaio su ogni voce.
+        </TutorialCard>
+      )}
+
       {/* CANTIERE + ORARIO */}
       <div className="grid-2">
         <div className="card">
@@ -585,6 +594,14 @@ export default function NuovaGiornata() {
             </button>
           </div>
         </div>
+      )}
+
+      {vociCantiere.length > 0 && (
+        <TutorialCard flagKey="tutorial_computo" icon="📊" title="Inserimento ore nei computi">
+          Per ogni voce puoi indicare la <strong>quantità</strong> eseguita oggi. Se ci sono operai in
+          presenza, puoi anche assegnare a ciascuno quante <strong>ore</strong> ha lavorato su quella
+          specifica voce — in aggiunta alle sue ore giornaliere già registrate sopra.
+        </TutorialCard>
       )}
 
       {vociCantiere.length > 0 && (
