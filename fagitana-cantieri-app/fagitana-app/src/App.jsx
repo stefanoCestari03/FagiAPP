@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
+import UpdateToast from './components/UpdateToast'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Calendario from './pages/Calendario'
@@ -42,6 +43,7 @@ export default function App() {
       <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>
+      <UpdateToast />
     </AuthProvider>
   )
 }

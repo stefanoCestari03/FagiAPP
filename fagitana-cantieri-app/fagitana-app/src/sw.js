@@ -8,8 +8,11 @@ import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 
-// Attiva subito senza attendere la chiusura delle tab aperte
-self.skipWaiting()
+// Il nuovo service worker resta in attesa finché l'utente non conferma
+// l'aggiornamento dal popup "Aggiorna ora" (vedi UpdateToast.jsx)
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
+})
 self.addEventListener('activate', e => e.waitUntil(clients.claim()))
 
 // Font Google — Cache First (non cambiano mai)
