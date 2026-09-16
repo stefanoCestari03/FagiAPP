@@ -20,7 +20,6 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <img src="/icon.svg" alt="" width="56" height="56" style={{ borderRadius: 14, marginBottom: 14 }} />
         <div className="login-logo">FAGITANA <span>//</span> CANTIERI</div>
         <div className="login-subtitle">Gestione quotidiana dei cantieri edili</div>
 
