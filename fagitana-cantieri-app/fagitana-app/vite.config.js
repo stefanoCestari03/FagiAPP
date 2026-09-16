@@ -11,7 +11,7 @@ export default defineConfig({
       filename: 'sw.js',
       registerType: 'prompt',
       injectRegister: null,
-      includeAssets: ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
+      includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Fagitana Cantieri',
         short_name: 'Fagitana',

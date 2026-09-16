@@ -33,6 +33,7 @@ export default function Layout() {
           <button className="hamburger" onClick={() => setSidebarOpen(o => !o)} aria-label="Menu">
             <span /><span /><span />
           </button>
+          <img src="/icon.svg" alt="" width="30" height="30" style={{ borderRadius: 7, flexShrink: 0 }} />
           <div className="topbar-logo">FAGITANA <span>//</span> CANTIERI</div>
         </div>
         <div className="topbar-right">
