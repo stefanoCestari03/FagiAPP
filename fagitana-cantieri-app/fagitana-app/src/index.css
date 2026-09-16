@@ -1,7 +1,7 @@
 :root {
-  --green: #3AAA35;
-  --green-dark: #2a8a26;
-  --green-light: #e8f7e7;
+  --green: #3B6D11;
+  --green-dark: #2c5310;
+  --green-light: #EAF3DE;
   --dark: #1a1a1a;
   --dark-2: #242424;
   --mid: #2e2e2e;
@@ -98,7 +98,7 @@ body {
   transition: all .15s;
 }
 .nav-item:hover { color: #fff; background: rgba(255,255,255,.05); }
-.nav-item.active { color: var(--green); border-left-color: var(--green); background: rgba(58,170,53,.08); }
+.nav-item.active { color: var(--green); border-left-color: var(--green); background: rgba(59,109,17,.08); }
 .nav-icon { font-size: 17px; width: 22px; text-align: center; }
 
 .main-content {
@@ -173,7 +173,7 @@ body {
 }
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(58,170,53,.12);
+  box-shadow: 0 0 0 3px rgba(59,109,17,.12);
   background: var(--white);
 }
 .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
@@ -191,7 +191,7 @@ body {
 }
 .btn-primary {
   background: var(--green); color: #fff;
-  box-shadow: 0 4px 14px rgba(58,170,53,.3);
+  box-shadow: 0 4px 14px rgba(59,109,17,.3);
 }
 .btn-primary:hover { background: var(--green-dark); transform: translateY(-1px); }
 .btn-secondary { background: #f0f0f0; color: var(--gray); border: 1.5px solid var(--border); }

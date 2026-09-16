@@ -377,7 +377,7 @@ export default function CantierDetail() {
                             <div className="progress-wrap" style={{ height: 5 }}>
                               <div
                                 className="progress-fill"
-                                style={{ width: `${pct}%`, background: pct >= 100 ? 'var(--green)' : '#3AAA35' }}
+                                style={{ width: `${pct}%`, background: 'var(--green)' }}
                               />
                             </div>
                             <span style={{ fontSize: 11, color: '#666', whiteSpace: 'nowrap' }}>

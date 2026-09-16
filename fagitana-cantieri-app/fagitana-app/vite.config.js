@@ -16,7 +16,7 @@ export default defineConfig({
         name: 'Fagitana Cantieri',
         short_name: 'Fagitana',
         description: 'Gestione quotidiana dei cantieri edili',
-        theme_color: '#3AAA35',
+        theme_color: '#3B6D11',
         background_color: '#1a1a1a',
         display: 'standalone',
         orientation: 'portrait-primary',
