@@ -243,29 +243,36 @@ export default function Calendario() {
                   </div>
                 )}
               </div>
-              <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                {dayList && !confirmDelete && (
+              <button className="modal-close" onClick={closeModal}>✕</button>
+            </div>
+
+            {/* BARRA AZIONI: navigazione tra le registrazioni del giorno + modifica/elimina */}
+            {!confirmDelete && (dayList || detail) && (
+              <div style={{
+                display:'flex', gap:8, flexWrap:'wrap',
+                padding:'10px 20px', borderBottom:'1px solid var(--border)',
+              }}>
+                {dayList && (
                   <button className="btn btn-secondary btn-sm" onClick={backToDayList}>
                     ← Altre di oggi
                   </button>
                 )}
-                {detail && !confirmDelete && (
+                {detail && (
                   <button className="btn btn-secondary btn-sm" onClick={() => { closeModal(); navigate(`/registrazione/${detail.id}`) }}>
                     ✏️ Modifica
                   </button>
                 )}
-                {detail && isAdmin && !confirmDelete && (
+                {detail && isAdmin && (
                   <button
                     className="btn btn-sm"
-                    style={{ background:'#fee2e2', color:'#b91c1c', border:'1px solid #fca5a5' }}
+                    style={{ background:'#fee2e2', color:'#b91c1c', border:'1px solid #fca5a5', marginLeft:'auto' }}
                     onClick={() => setConfirmDelete(true)}
                   >
                     🗑️ Elimina
                   </button>
                 )}
-                <button className="modal-close" onClick={closeModal}>✕</button>
               </div>
-            </div>
+            )}
 
             {/* BARRA CONFERMA ELIMINAZIONE */}
             {confirmDelete && (
