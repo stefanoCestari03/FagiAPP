@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { pushSupportato, attivaNotifiche } from '../lib/push'
+import { pushSupportato, attivaNotifiche, sincronizzaSottoscrizioneEsistente } from '../lib/push'
 
 const DISMISS_KEY = 'fagitana_notifiche_prompt_dismissed'
 
@@ -40,7 +40,13 @@ export default function NotificationPrompt() {
       return
     }
 
-    if (Notification.permission === 'granted') return
+    if (Notification.permission === 'granted') {
+      // Permesso di sistema già concesso: nessun banner, ma riprova in
+      // silenzio a salvare l'iscrizione (utile se il primo tentativo era
+      // fallito lato Supabase, es. tabella non ancora creata).
+      sincronizzaSottoscrizioneEsistente(user.id)
+      return
+    }
     setStato(Notification.permission === 'denied' ? 'denied' : 'default')
     setVisible(true)
   }, [user])
