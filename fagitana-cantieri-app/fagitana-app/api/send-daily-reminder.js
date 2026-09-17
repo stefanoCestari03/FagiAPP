@@ -27,28 +27,36 @@ export default async function handler(req, res) {
     }
   }
 
-  if (!eOra18aRoma()) {
+  // ?test=1 salta i controlli di orario/giornata-già-inserita e non consuma
+  // il lock giornaliero, così si può forzare un invio reale per verificare
+  // che tutta la catena (VAPID, service worker, dispositivo) funzioni,
+  // senza dover aspettare le 18:00 né rischiare di saltare l'invio vero.
+  const isTest = req.query?.test === '1'
+
+  if (!isTest && !eOra18aRoma()) {
     return res.status(200).json({ skipped: 'not-18-rome' })
   }
 
   const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   const oggi = dataOggiRoma()
 
-  // Evita invii doppi se entrambi i cron dovessero risultare "le 18" (non dovrebbe
-  // succedere, ma è economico da garantire): la chiave è unica per giorno.
-  const { error: lockError } = await supabaseAdmin
-    .from('cron_notifiche_log')
-    .insert({ chiave: `promemoria_giornata:${oggi}` })
-  if (lockError) {
-    return res.status(200).json({ skipped: 'already-run-today' })
-  }
+  if (!isTest) {
+    // Evita invii doppi se entrambi i cron dovessero risultare "le 18" (non dovrebbe
+    // succedere, ma è economico da garantire): la chiave è unica per giorno.
+    const { error: lockError } = await supabaseAdmin
+      .from('cron_notifiche_log')
+      .insert({ chiave: `promemoria_giornata:${oggi}` })
+    if (lockError) {
+      return res.status(200).json({ skipped: 'already-run-today' })
+    }
 
-  const { count } = await supabaseAdmin
-    .from('giornate')
-    .select('id', { count: 'exact', head: true })
-    .eq('data', oggi)
-  if (count > 0) {
-    return res.status(200).json({ skipped: 'already-logged', count })
+    const { count } = await supabaseAdmin
+      .from('giornate')
+      .select('id', { count: 'exact', head: true })
+      .eq('data', oggi)
+    if (count > 0) {
+      return res.status(200).json({ skipped: 'already-logged', count })
+    }
   }
 
   const { data: subs, error: subsError } = await supabaseAdmin
@@ -86,5 +94,8 @@ export default async function handler(req, res) {
   }))
 
   const inviate = risultati.filter(r => r.status === 'fulfilled').length
-  return res.status(200).json({ inviate, totale: subs?.length || 0 })
+  const errori = risultati
+    .filter(r => r.status === 'rejected')
+    .map(r => r.reason?.body || r.reason?.message || String(r.reason))
+  return res.status(200).json({ test: isTest, inviate, totale: subs?.length || 0, errori })
 }
