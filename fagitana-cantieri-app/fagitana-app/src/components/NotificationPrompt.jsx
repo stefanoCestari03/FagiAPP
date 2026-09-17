@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { pushSupportato, attivaNotifiche, sincronizzaSottoscrizioneEsistente } from '../lib/push'
-
-const DISMISS_KEY = 'fagitana_notifiche_prompt_dismissed'
+import { pushSupportato, attivaNotifiche, sincronizzaSottoscrizioneEsistente, notificheAttive } from '../lib/push'
 
 function isStandalone() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
@@ -27,34 +25,44 @@ export default function NotificationPrompt() {
   const [error, setError] = useState('')
   const [stato, setStato] = useState('default') // 'default' | 'denied' | 'ios-non-installata'
 
+  // Nessun "non chiedermelo più" persistito: il banner ricompare a ogni
+  // apertura dell'app finché non rileva che le notifiche sono davvero
+  // attive sia lato browser (permesso concesso) sia lato app (iscrizione
+  // salvata su Supabase) — su richiesta esplicita, per essere sicuri che
+  // tutti gli utenti le attivino.
   useEffect(() => {
     if (!user || !pushSupportato()) return
-    if (localStorage.getItem(DISMISS_KEY)) return
 
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.MSStream
     if (isIOS && !isStandalone()) {
-      // Su iPhone/iPad le notifiche push funzionano solo se l'app è installata
-      // sulla schermata Home — prima va installata (vedi InstallPrompt), poi si può attivare.
       setStato('ios-non-installata')
       setVisible(true)
       return
     }
 
-    if (Notification.permission === 'granted') {
-      // Permesso di sistema già concesso: nessun banner, ma riprova in
-      // silenzio a salvare l'iscrizione (utile se il primo tentativo era
-      // fallito lato Supabase, es. tabella non ancora creata).
-      sincronizzaSottoscrizioneEsistente(user.id)
-      return
-    }
-    setStato(Notification.permission === 'denied' ? 'denied' : 'default')
-    setVisible(true)
+    let annullato = false
+    ;(async () => {
+      if (Notification.permission === 'denied') {
+        setStato('denied')
+        setVisible(true)
+        return
+      }
+      if (Notification.permission === 'granted') {
+        // Prova a (ri)salvare l'iscrizione in silenzio, poi verifica se è
+        // davvero confermata su Supabase prima di decidere se nascondere il banner.
+        await sincronizzaSottoscrizioneEsistente(user.id)
+        const attivo = await notificheAttive()
+        if (annullato) return
+        if (attivo) { setVisible(false); return }
+      }
+      setStato(Notification.permission === 'default' ? 'default' : 'non-confermato')
+      setVisible(true)
+    })()
+
+    return () => { annullato = true }
   }, [user])
 
-  const dismiss = () => {
-    localStorage.setItem(DISMISS_KEY, '1')
-    setVisible(false)
-  }
+  const nascondiPerOra = () => setVisible(false)
 
   const attiva = async () => {
     setLoading(true)
@@ -65,7 +73,7 @@ export default function NotificationPrompt() {
         setError('Permesso negato.')
         setStato('denied')
       } else {
-        dismiss()
+        setVisible(false)
       }
     } catch (e) {
       console.error(e)
@@ -79,9 +87,12 @@ export default function NotificationPrompt() {
 
   const testo = {
     'default': 'Ogni giorno alle 18:00, se non hai ancora inserito la giornata, te lo ricordiamo con una notifica.',
+    'non-confermato': 'Il permesso è concesso ma l\'attivazione non risulta ancora completata su questo dispositivo. Riprova.',
     'denied': `Le notifiche sono bloccate per questo sito. ${istruzioniImpostazioni()}`,
     'ios-non-installata': 'Su iPhone/iPad le notifiche funzionano solo dopo aver installato l\'app sulla schermata Home (Condividi → "Aggiungi alla schermata Home"). Poi torna qui per attivarle.',
   }[stato]
+
+  const puoRiprovare = stato === 'default' || stato === 'non-confermato'
 
   return (
     <div
@@ -101,12 +112,12 @@ export default function NotificationPrompt() {
         {error && <div style={{ fontSize: 12, color: '#ff8080', marginTop: 6 }}>{error}</div>}
         <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
           <button
-            onClick={dismiss}
+            onClick={nascondiPerOra}
             style={{ background: 'none', border: '1px solid #555', color: '#ccc', borderRadius: 8, padding: '7px 12px', fontSize: 12, cursor: 'pointer' }}
           >
-            {stato === 'default' ? 'Non ora' : 'Ho capito'}
+            {puoRiprovare ? 'Non ora' : 'Ho capito'}
           </button>
-          {stato === 'default' && (
+          {puoRiprovare && (
             <button
               onClick={attiva}
               disabled={loading}

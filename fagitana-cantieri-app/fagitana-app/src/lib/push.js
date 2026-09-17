@@ -60,3 +60,24 @@ export async function sincronizzaSottoscrizioneEsistente(userId) {
     console.warn('Sincronizzazione notifiche push fallita:', e)
   }
 }
+
+// Verifica lo stato reale, non solo il permesso del browser: controlla anche
+// che la sottoscrizione di questo dispositivo sia davvero salvata su Supabase
+// ("dell'app"), non solo concessa a livello di sistema ("del browser").
+export async function notificheAttive() {
+  if (!pushSupportato() || Notification.permission !== 'granted') return false
+  try {
+    const registration = await navigator.serviceWorker.ready
+    const subscription = await registration.pushManager.getSubscription()
+    if (!subscription) return false
+    const { data, error } = await supabase
+      .from('push_subscriptions')
+      .select('id')
+      .eq('endpoint', subscription.endpoint)
+      .maybeSingle()
+    return Boolean(data) && !error
+  } catch (e) {
+    console.warn('Verifica stato notifiche fallita:', e)
+    return false
+  }
+}
