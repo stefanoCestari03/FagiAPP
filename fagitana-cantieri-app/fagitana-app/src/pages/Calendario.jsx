@@ -259,7 +259,7 @@ export default function Calendario() {
                 )}
                 {detail && (
                   <button className="btn btn-secondary btn-sm" onClick={() => { closeModal(); navigate(`/registrazione/${detail.id}`) }}>
-                    ✏️ Modifica
+                    Modifica
                   </button>
                 )}
                 {detail && isAdmin && (
@@ -268,7 +268,7 @@ export default function Calendario() {
                     style={{ background:'#fee2e2', color:'#b91c1c', border:'1px solid #fca5a5', marginLeft:'auto' }}
                     onClick={() => setConfirmDelete(true)}
                   >
-                    🗑️ Elimina
+                    Elimina
                   </button>
                 )}
               </div>
@@ -282,7 +282,7 @@ export default function Calendario() {
                 justifyContent:'space-between', gap:12, flexWrap:'wrap'
               }}>
                 <div style={{ fontSize:13, color:'#b91c1c', fontWeight:600 }}>
-                  ⚠️ Eliminare questa registrazione? L'azione è irreversibile.
+                  Eliminare questa registrazione? L'azione è irreversibile.
                 </div>
                 <div style={{ display:'flex', gap:8 }}>
                   <button
@@ -311,7 +311,7 @@ export default function Calendario() {
                 <>
                   {/* Orari */}
                   <div className="modal-section">
-                    <div className="modal-section-title">⏰ Orario & Condizioni</div>
+                    <div className="modal-section-title">Orario & Condizioni</div>
                     <div className="form-grid-2" style={{ gap:10 }}>
                       {[
                         ['Inizio lavori', detail.ora_inizio || '–'],
@@ -330,7 +330,7 @@ export default function Calendario() {
                   {/* Presenze */}
                   <div className="modal-section">
                     <div className="modal-section-title">
-                      👷 Operai · {presentCount}/{detail.presenze?.length} presenti
+                      Operai · {presentCount}/{detail.presenze?.length} presenti
                     </div>
                     <div className="chip-list">
                       {detail.presenze?.sort((a,b) => {
@@ -338,7 +338,6 @@ export default function Calendario() {
                         return order[a.stato] - order[b.stato]
                       }).map(p => (
                         <div key={p.id} className={`chip chip-${p.stato === 'presente' ? 'present' : p.stato === 'assente' ? 'absent' : 'partial'}`}>
-                          {p.stato === 'presente' ? '✅' : p.stato === 'assente' ? '❌' : '⚡'}
                           {p.operai?.nome} {p.operai?.cognome}
                           {p.stato !== 'assente' && p.ora_entrata && (
                             <span style={{ fontWeight:400, opacity:.7 }}>
@@ -353,7 +352,7 @@ export default function Calendario() {
                   {/* Materiali */}
                   {detail.materiali?.length > 0 && (
                     <div className="modal-section">
-                      <div className="modal-section-title">🧱 Materiali</div>
+                      <div className="modal-section-title">Materiali</div>
                       <div className="tag-list">
                         {detail.materiali.map(m => (
                           <div key={m.id} className="tag">
@@ -367,7 +366,7 @@ export default function Calendario() {
                   {/* Mezzi */}
                   {detail.mezzi?.length > 0 && (
                     <div className="modal-section">
-                      <div className="modal-section-title">🚛 Mezzi & Attrezzature</div>
+                      <div className="modal-section-title">Mezzi & Attrezzature</div>
                       <div className="tag-list">
                         {detail.mezzi.map(m => (
                           <div key={m.id} className="tag" style={{ background:'#f0f8f0' }}>
@@ -381,7 +380,7 @@ export default function Calendario() {
                   {/* Note */}
                   {detail.note_attivita && (
                     <div className="modal-section">
-                      <div className="modal-section-title">📝 Attività Svolte</div>
+                      <div className="modal-section-title">Attività Svolte</div>
                       <div style={{ background:'#f9f9f9', borderRadius:8, padding:14, fontSize:13, lineHeight:1.6, borderLeft:'3px solid var(--green)' }}>
                         {detail.note_attivita}
                       </div>
@@ -389,7 +388,7 @@ export default function Calendario() {
                   )}
                   {detail.note_problemi && (
                     <div className="modal-section">
-                      <div className="modal-section-title">⚠️ Problemi / Segnalazioni</div>
+                      <div className="modal-section-title">Problemi / Segnalazioni</div>
                       <div style={{ background:'#fff8f0', borderRadius:8, padding:14, fontSize:13, lineHeight:1.6, borderLeft:'3px solid var(--orange)' }}>
                         {detail.note_problemi}
                       </div>
@@ -397,7 +396,7 @@ export default function Calendario() {
                   )}
                   {detail.note_prossimi && (
                     <div className="modal-section">
-                      <div className="modal-section-title">🔜 Prossimi Lavori</div>
+                      <div className="modal-section-title">Prossimi Lavori</div>
                       <div style={{ background:'#f0f4ff', borderRadius:8, padding:14, fontSize:13, lineHeight:1.6, borderLeft:'3px solid #3498db' }}>
                         {detail.note_prossimi}
                       </div>

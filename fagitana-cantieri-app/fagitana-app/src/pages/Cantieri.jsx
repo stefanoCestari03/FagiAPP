@@ -32,14 +32,14 @@ export default function Cantieri() {
   }
 
   async function handleSave() {
-    if (!form.nome.trim()) { setToast('⚠️ Inserisci il nome del cantiere'); return }
+    if (!form.nome.trim()) { setToast('Inserisci il nome del cantiere'); return }
     setSaving(true)
     const { error } = editingId
       ? await supabase.from('cantieri').update({ ...form }).eq('id', editingId)
       : await supabase.from('cantieri').insert({ ...form, stato: 'attivo' })
-    if (error) setToast('❌ Errore nel salvataggio')
+    if (error) setToast('Errore nel salvataggio')
     else {
-      setToast(editingId ? '✅ Cantiere aggiornato!' : '✅ Cantiere aggiunto!')
+      setToast(editingId ? 'Cantiere aggiornato!' : 'Cantiere aggiunto!')
       closeForm()
       fetchCantieri()
     }
@@ -64,7 +64,7 @@ export default function Cantieri() {
   async function toggleStato(c) {
     const nuovoStato = c.stato === 'attivo' ? 'completato' : 'attivo'
     await supabase.from('cantieri').update({ stato: nuovoStato }).eq('id', c.id)
-    setToast(`✅ Cantiere ${nuovoStato === 'attivo' ? 'riattivato' : 'completato'}`)
+    setToast(`Cantiere ${nuovoStato === 'attivo' ? 'riattivato' : 'completato'}`)
     fetchCantieri()
   }
 
@@ -86,7 +86,7 @@ export default function Cantieri() {
       </div>
 
       {showForm && !editingId && (
-        <TutorialCard flagKey="tutorial_cantiere" icon="🏗️" title="Crei il tuo primo cantiere">
+        <TutorialCard flagKey="tutorial_cantiere" title="Crei il tuo primo cantiere">
           Compila nome e comune (obbligatorio solo il nome), poi salva. Dal dettaglio del cantiere
           potrai poi aggiungere le <strong>voci di computo</strong> per tracciare l'avanzamento lavori.
         </TutorialCard>
@@ -96,7 +96,6 @@ export default function Cantieri() {
       {showForm && (
         <div className="card" style={{ marginBottom: 20 }}>
           <div className="card-header">
-            <div className="card-icon">🏗️</div>
             <div><div className="card-title">{editingId ? 'Modifica Cantiere' : 'Aggiungi Cantiere'}</div></div>
           </div>
           <div className="card-body">
@@ -132,7 +131,7 @@ export default function Cantieri() {
             <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
               <button className="btn btn-secondary" onClick={closeForm}>Annulla</button>
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? 'Salvataggio...' : editingId ? '💾 Aggiorna Cantiere' : '💾 Salva Cantiere'}
+                {saving ? 'Salvataggio...' : editingId ? 'Aggiorna Cantiere' : 'Salva Cantiere'}
               </button>
             </div>
           </div>
@@ -161,7 +160,6 @@ export default function Cantieri() {
           ) : (
             cantieri.map(c => (
               <div key={c.id} className="cantiere-row" onClick={() => navigate(`/cantieri/${c.id}`)} style={{ cursor:'pointer' }}>
-                <div style={{ fontSize:28 }}>🏗️</div>
                 <div style={{ flex:1 }}>
                   <div className="cantiere-name">{c.nome}</div>
                   <div className="cantiere-addr">
@@ -176,7 +174,7 @@ export default function Cantieri() {
                     onClick={() => startEdit(c)}
                     title="Modifica cantiere"
                   >
-                    ✏️ Modifica
+                    Modifica
                   </button>
                   <button
                     className="btn btn-secondary btn-sm"

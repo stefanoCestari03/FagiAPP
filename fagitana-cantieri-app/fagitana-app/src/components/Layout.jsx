@@ -3,10 +3,10 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const NAV = [
-  { to: '/',             icon: '📊', label: 'Dashboard',   section: null },
-  { to: '/calendario',   icon: '📅', label: 'Calendario',  section: null },
-  { to: '/registrazione',icon: '📋', label: 'Nuova Registrazione', section: null },
-  { to: '/cantieri',     icon: '🏗️', label: 'Cantieri',    section: 'Gestione' },
+  { to: '/',             label: 'Dashboard',   section: null },
+  { to: '/calendario',   label: 'Calendario',  section: null },
+  { to: '/registrazione',label: 'Nuova Registrazione', section: null },
+  { to: '/cantieri',     label: 'Cantieri',    section: 'Gestione' },
 ]
 
 export default function Layout() {
@@ -64,7 +64,6 @@ export default function Layout() {
               className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
               onClick={closeSidebar}
             >
-              <span className="nav-icon">{item.icon}</span>
               {item.label}
             </NavLink>
           </span>

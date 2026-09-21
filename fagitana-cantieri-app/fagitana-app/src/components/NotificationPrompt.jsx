@@ -105,7 +105,6 @@ export default function NotificationPrompt() {
         display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap',
       }}
     >
-      <div style={{ fontSize: 22 }}>🔔</div>
       <div style={{ flex: 1, minWidth: 200 }}>
         <div style={{ fontWeight: 700, fontSize: 14 }}>Attiva le notifiche</div>
         <div style={{ fontSize: 12, color: '#aaa', marginTop: 3, lineHeight: 1.5 }}>{testo}</div>

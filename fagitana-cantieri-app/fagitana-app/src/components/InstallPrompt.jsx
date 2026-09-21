@@ -53,7 +53,6 @@ export default function InstallPrompt() {
         display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap',
       }}
     >
-      <div style={{ fontSize: 22 }}>📱</div>
       <div style={{ flex: 1, minWidth: 200 }}>
         <div style={{ fontWeight: 700, fontSize: 14 }}>Usa Fagitana come app</div>
         <div style={{ fontSize: 12, color: '#aaa', marginTop: 3, lineHeight: 1.5 }}>

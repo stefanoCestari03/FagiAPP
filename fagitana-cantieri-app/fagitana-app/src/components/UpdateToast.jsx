@@ -27,7 +27,6 @@ export default function UpdateToast() {
         display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
       }}
     >
-      <div style={{ fontSize: 22 }}>🔄</div>
       <div style={{ flex: 1, minWidth: 200 }}>
         <div style={{ fontWeight: 700, fontSize: 14 }}>Nuova versione disponibile</div>
         {CHANGELOG.length > 0 ? (

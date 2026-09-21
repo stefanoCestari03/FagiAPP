@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import TutorialCard from '../components/TutorialCard'
 
-const METEO_OPT = ['☀️ Sole','⛅ Nuvoloso','🌧️ Pioggia','❄️ Neve','💨 Vento forte']
+const METEO_OPT = ['Sole','Nuvoloso','Pioggia','Neve','Vento forte']
 
 function Toast({ msg, onDone }) {
   useEffect(() => { const t = setTimeout(onDone, 3000); return () => clearTimeout(t) }, [onDone])
@@ -25,7 +25,7 @@ export default function NuovaGiornata() {
   const [cantiereId, setCantiereId] = useState('')
   const [data, setData]             = useState(initialData)
   const [fase, setFase]             = useState('')
-  const [meteo, setMeteo]           = useState('☀️ Sole')
+  const [meteo, setMeteo]           = useState('Sole')
   const [oraInizio, setOraInizio]   = useState('07:30')
   const [oraFine, setOraFine]       = useState('17:30')
   const [oraPausaI, setOraPausaI]   = useState('12:00')
@@ -92,7 +92,7 @@ export default function NuovaGiornata() {
       setCantiereId(g.cantiere_id)
       setData(g.data)
       setFase(g.fase || '')
-      setMeteo(g.meteo || '☀️ Sole')
+      setMeteo(g.meteo || 'Sole')
       setOraInizio(g.ora_inizio?.slice(0,5) || '07:30')
       setOraFine(g.ora_fine?.slice(0,5) || '17:30')
       setOraPausaI(g.ora_pausa_inizio?.slice(0,5) || '12:00')
@@ -148,7 +148,7 @@ export default function NuovaGiornata() {
   const addOperaioDaLista = () => {
     if (!selectedOperaioId) return
     if (presenze.find(p => p.operaio_id === selectedOperaioId)) {
-      setToast('⚠️ Operaio già aggiunto')
+      setToast('Operaio già aggiunto')
       return
     }
     const op = operaiDB.find(o => o.id === selectedOperaioId)
@@ -209,7 +209,7 @@ export default function NuovaGiornata() {
 
   // ── Salva ─────────────────────────────────────────────────────────────────
   const handleSave = async () => {
-    if (!cantiereId) { setToast('⚠️ Seleziona un cantiere'); return }
+    if (!cantiereId) { setToast('Seleziona un cantiere'); return }
     setSaving(true)
     try {
       let giornataId = id
@@ -294,11 +294,11 @@ export default function NuovaGiornata() {
         avanzamentoPayload.length > 0 && supabase.from('avanzamento_giornaliero').insert(avanzamentoPayload),
       ].filter(Boolean))
 
-      setToast(isEdit ? '✅ Registrazione aggiornata!' : '✅ Registrazione salvata!')
+      setToast(isEdit ? 'Registrazione aggiornata!' : 'Registrazione salvata!')
       setTimeout(() => navigate('/calendario'), 1500)
     } catch (e) {
       console.error(e)
-      setToast('❌ Errore nel salvataggio. Riprova.')
+      setToast('Errore nel salvataggio. Riprova.')
     } finally {
       setSaving(false)
     }
@@ -331,7 +331,7 @@ export default function NuovaGiornata() {
       </div>
 
       {!isEdit && (
-        <TutorialCard flagKey="tutorial_giornata" icon="📋" title="Crei la tua prima registrazione">
+        <TutorialCard flagKey="tutorial_giornata" title="Crei la tua prima registrazione">
           Seleziona cantiere e data, imposta gli orari, poi aggiungi gli operai presenti dalla lista
           o come "jolly" se esterni. In fondo trovi materiali, mezzi e note. Se il cantiere ha voci
           di computo potrai anche registrare quante ore ha lavorato ciascun operaio su ogni voce.
@@ -342,7 +342,6 @@ export default function NuovaGiornata() {
       <div className="grid-2">
         <div className="card">
           <div className="card-header">
-            <div className="card-icon">🏗️</div>
             <div><div className="card-title">Cantiere</div><div className="card-subtitle">Seleziona cantiere e data</div></div>
           </div>
           <div className="card-body">
@@ -382,7 +381,6 @@ export default function NuovaGiornata() {
 
         <div className="card">
           <div className="card-header">
-            <div className="card-icon">⏰</div>
             <div><div className="card-title">Orario Cantiere</div><div className="card-subtitle">Orari generali della giornata</div></div>
           </div>
           <div className="card-body">
@@ -419,7 +417,6 @@ export default function NuovaGiornata() {
       {/* OPERAI */}
       <div className="card">
         <div className="card-header">
-          <div className="card-icon">👷</div>
           <div><div className="card-title">Presenze & Orari Operai</div><div className="card-subtitle">Seleziona dalla lista o aggiungi un jolly</div></div>
           <div className="badge badge-green" style={{ marginLeft:'auto' }}>{presentiCount}/{presenze.length} Presenti</div>
         </div>
@@ -505,9 +502,9 @@ export default function NuovaGiornata() {
                     onChange={e => updatePresenza(i,'stato',e.target.value)}
                     style={{ background: p.stato==='assente'?'#fff0f0': p.stato==='parziale'?'#fff8e1':'#f0fef0' }}
                   >
-                    <option value="presente">✅ Presente</option>
-                    <option value="parziale">⚡ Parziale</option>
-                    <option value="assente">❌ Assente</option>
+                    <option value="presente">Presente</option>
+                    <option value="parziale">Parziale</option>
+                    <option value="assente">Assente</option>
                   </select>
                   <button
                     onClick={() => removePresenza(i)}
@@ -525,7 +522,6 @@ export default function NuovaGiornata() {
       <div className="grid-2">
         <div className="card">
           <div className="card-header">
-            <div className="card-icon">🧱</div>
             <div><div className="card-title">Materiali Utilizzati</div></div>
           </div>
           <div className="card-body">
@@ -552,7 +548,6 @@ export default function NuovaGiornata() {
 
         <div className="card">
           <div className="card-header">
-            <div className="card-icon">🚛</div>
             <div><div className="card-title">Mezzi & Attrezzature</div></div>
           </div>
           <div className="card-body">
@@ -582,7 +577,6 @@ export default function NuovaGiornata() {
       {cantiereId && !vociLoading && vociCantiere.length === 0 && (
         <div className="card" style={{ borderLeft: '4px solid var(--red)' }}>
           <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: 28 }}>⚠️</div>
             <div style={{ flex: 1, minWidth: 200 }}>
               <div style={{ fontWeight: 700, fontSize: 14 }}>Nessuna voce di computo per questo cantiere</div>
               <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
@@ -597,7 +591,7 @@ export default function NuovaGiornata() {
       )}
 
       {vociCantiere.length > 0 && (
-        <TutorialCard flagKey="tutorial_computo" icon="📊" title="Inserimento ore nei computi">
+        <TutorialCard flagKey="tutorial_computo" title="Inserimento ore nei computi">
           Per ogni voce puoi indicare la <strong>quantità</strong> eseguita oggi. Se ci sono operai in
           presenza, puoi anche assegnare a ciascuno quante <strong>ore</strong> ha lavorato su quella
           specifica voce — in aggiunta alle sue ore giornaliere già registrate sopra.
@@ -607,7 +601,6 @@ export default function NuovaGiornata() {
       {vociCantiere.length > 0 && (
         <div className="card">
           <div className="card-header">
-            <div className="card-icon">📊</div>
             <div>
               <div className="card-title">Avanzamento Voci di Computo</div>
               <div className="card-subtitle">
@@ -724,7 +717,6 @@ export default function NuovaGiornata() {
       {/* NOTE */}
       <div className="card">
         <div className="card-header">
-          <div className="card-icon">📝</div>
           <div><div className="card-title">Note Lavori</div></div>
         </div>
         <div className="card-body">
@@ -753,13 +745,13 @@ export default function NuovaGiornata() {
       <div className="submit-bar">
         <div className="submit-info">
           {cantiereId
-            ? `🏗️ ${cantieri.find(c=>c.id===cantiereId)?.nome || '–'} · ${data}`
+            ? `${cantieri.find(c=>c.id===cantiereId)?.nome || '–'} · ${data}`
             : 'Seleziona un cantiere per continuare'}
         </div>
         <div style={{ display:'flex', gap:10 }}>
           <button className="btn btn-secondary" onClick={() => navigate(-1)}>Annulla</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-            {saving ? '⏳ Salvataggio...' : `💾 ${isEdit?'AGGIORNA':'SALVA REGISTRAZIONE'}`}
+            {saving ? 'Salvataggio...' : (isEdit ? 'AGGIORNA' : 'SALVA REGISTRAZIONE')}
           </button>
         </div>
       </div>

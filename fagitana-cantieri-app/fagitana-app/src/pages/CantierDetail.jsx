@@ -131,9 +131,9 @@ export default function CantierDetail() {
   }
 
   async function handleSaveVoce() {
-    if (!form.descrizione.trim()) { setToast('⚠️ Inserisci la descrizione'); return }
+    if (!form.descrizione.trim()) { setToast('Inserisci la descrizione'); return }
     if (!form.quantita_totale || isNaN(Number(form.quantita_totale))) {
-      setToast('⚠️ Inserisci una quantità valida'); return
+      setToast('Inserisci una quantità valida'); return
     }
     setSaving(true)
     const payload = {
@@ -147,9 +147,9 @@ export default function CantierDetail() {
     const { error } = editingId
       ? await supabase.from('voci_computo').update(payload).eq('id', editingId)
       : await supabase.from('voci_computo').insert({ ...payload, cantiere_id: id })
-    if (error) setToast('❌ Errore nel salvataggio')
+    if (error) setToast('Errore nel salvataggio')
     else {
-      setToast(editingId ? '✅ Voce aggiornata!' : '✅ Voce aggiunta!')
+      setToast(editingId ? 'Voce aggiornata!' : 'Voce aggiunta!')
       closeForm()
       load()
     }
@@ -216,10 +216,10 @@ export default function CantierDetail() {
       {/* TABS */}
       <div className="tabs">
         <button className={`tab-btn${tab === 'computo' ? ' active' : ''}`} onClick={() => setTab('computo')}>
-          📋 Voci di Computo <span className="badge badge-gray" style={{ marginLeft: 6, fontSize: 10 }}>{voci.length}</span>
+          Voci di Computo <span className="badge badge-gray" style={{ marginLeft: 6, fontSize: 10 }}>{voci.length}</span>
         </button>
         <button className={`tab-btn${tab === 'avanzamento' ? ' active' : ''}`} onClick={() => setTab('avanzamento')}>
-          📊 Avanzamento & Ore
+          Avanzamento & Ore
         </button>
       </div>
 
@@ -237,7 +237,6 @@ export default function CantierDetail() {
           {isAdmin && showForm && (
             <div className="card" style={{ marginBottom: 20 }}>
               <div className="card-header">
-                <div className="card-icon">📄</div>
                 <div>
                   <div className="card-title">{editingId ? 'Modifica Voce' : 'Nuova Voce di Computo'}</div>
                   <div className="card-subtitle">{editingId ? 'Aggiorna i dati della lavorazione' : 'Aggiungi una lavorazione al preventivo'}</div>
@@ -318,7 +317,7 @@ export default function CantierDetail() {
                     Annulla
                   </button>
                   <button className="btn btn-primary" onClick={handleSaveVoce} disabled={saving}>
-                    {saving ? '⏳ Salvataggio...' : editingId ? '💾 Salva Modifiche' : '💾 Aggiungi Voce'}
+                    {saving ? 'Salvataggio...' : editingId ? 'Salva Modifiche' : 'Aggiungi Voce'}
                   </button>
                 </div>
               </div>
@@ -328,7 +327,6 @@ export default function CantierDetail() {
           {voci.length === 0 ? (
             <div className="card">
               <div className="card-body" style={{ textAlign: 'center', padding: 48, color: '#999' }}>
-                <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
                 <div style={{ fontWeight: 600, marginBottom: 6 }}>Nessuna voce di computo</div>
                 <div style={{ fontSize: 13 }}>Aggiungi le lavorazioni preventivate per questo cantiere</div>
                 <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => setShowForm(true)}>
@@ -370,7 +368,7 @@ export default function CantierDetail() {
                           <div style={{ fontWeight: 600, fontSize: 14 }}>{v.descrizione}</div>
                           <div style={{ fontSize: 12, color: '#888', marginTop: 3, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                             <span>Qtà: {fmt(v.quantita_totale)} {v.unita_misura}</span>
-                            {v.ore_preventivo > 0 && <span>⏱ {fmt(v.ore_preventivo)}h previste</span>}
+                            {v.ore_preventivo > 0 && <span>{fmt(v.ore_preventivo)}h previste</span>}
                             {v.prezzo_unitario && <span>€ {fmt(v.prezzo_unitario)}/{v.unita_misura}</span>}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 7 }}>
@@ -392,7 +390,7 @@ export default function CantierDetail() {
                             onClick={() => startEdit(v)}
                             title="Modifica voce"
                           >
-                            ✏️
+                            Modifica
                           </button>
                           <button
                             className="btn btn-danger btn-sm"
@@ -436,7 +434,7 @@ export default function CantierDetail() {
                 {isOvertime ? '▲' : deltaOre < 0 ? '▼' : '='} {fmt(Math.abs(deltaOre))}h
               </div>
               <div className="stat-label" style={{ color: isOvertime ? 'var(--red)' : 'var(--gray)' }}>
-                {isOvertime ? '⚠️ Ore in eccesso' : deltaOre < 0 ? '✅ Ore risparmiate' : 'In linea col preventivo'}
+                {isOvertime ? 'Ore in eccesso' : deltaOre < 0 ? 'Ore risparmiate' : 'In linea col preventivo'}
               </div>
             </div>
           </div>
@@ -445,7 +443,6 @@ export default function CantierDetail() {
           {totalePreventivoEur > 0 && (
             <div className="card" style={{ marginBottom: 20 }}>
               <div className="card-header">
-                <div className="card-icon">💶</div>
                 <div>
                   <div className="card-title">Riepilogo Economico</div>
                   <div className="card-subtitle">Solo voci con prezzo unitario inserito</div>
@@ -491,7 +488,6 @@ export default function CantierDetail() {
           {voci.length === 0 ? (
             <div className="card">
               <div className="card-body" style={{ textAlign: 'center', padding: 48, color: '#999' }}>
-                <div style={{ fontSize: 36, marginBottom: 12 }}>📊</div>
                 Nessuna voce di computo inserita.
                 <br />
                 <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => setTab('computo')}>
@@ -566,9 +562,9 @@ export default function CantierDetail() {
                                 Ore: <strong>{fmt(av.ore_spese)}h</strong> spese / {fmt(v.ore_preventivo)}h prev.
                               </span>
                               {!oreOk && (
-                                <span>⚠️ SFORO +{fmt(av.ore_spese - v.ore_preventivo)}h</span>
+                                <span>SFORO +{fmt(av.ore_spese - v.ore_preventivo)}h</span>
                               )}
-                              {oreWarning && <span>⚡ Vicino al limite</span>}
+                              {oreWarning && <span>Vicino al limite</span>}
                             </div>
                             <div className="progress-wrap">
                               <div className="progress-fill" style={{

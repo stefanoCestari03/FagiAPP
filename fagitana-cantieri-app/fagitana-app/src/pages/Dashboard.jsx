@@ -71,7 +71,6 @@ export default function Dashboard() {
       {/* ULTIME REGISTRAZIONI */}
       <div className="card">
         <div className="card-header">
-          <div className="card-icon">📋</div>
           <div>
             <div className="card-title">Ultime Registrazioni</div>
             <div className="card-subtitle">Le 5 giornate più recenti</div>
@@ -93,7 +92,6 @@ export default function Dashboard() {
           ) : (
             recenti.map(g => (
               <div key={g.id} className="cantiere-row" onClick={() => navigate(`/registrazione/${g.id}`)}>
-                <div style={{ fontSize: 24 }}>{g.meteo?.split(' ')[0] || '🏗️'}</div>
                 <div style={{ flex: 1 }}>
                   <div className="cantiere-name">{g.cantieri?.nome || '–'}</div>
                   <div className="cantiere-addr">{g.cantieri?.comune} · {g.fase || '–'}</div>
@@ -114,7 +112,6 @@ export default function Dashboard() {
       <div className="grid-2">
         <div className="card" style={{ cursor: 'pointer' }} onClick={() => navigate('/registrazione')}>
           <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ fontSize: 36 }}>📋</div>
             <div>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18 }}>
                 Registra Giornata
@@ -127,7 +124,6 @@ export default function Dashboard() {
         </div>
         <div className="card" style={{ cursor: 'pointer' }} onClick={() => navigate('/cantieri')}>
           <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ fontSize: 36 }}>🏗️</div>
             <div>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18 }}>
                 Gestisci Cantieri
