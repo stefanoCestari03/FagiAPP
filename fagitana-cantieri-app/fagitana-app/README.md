@@ -1,10 +1,10 @@
-# 🏗️ Fagitana Cantieri – App Web
+# Fagitana Cantieri – App Web
 
 Applicazione web per la gestione quotidiana dei cantieri della **Cooperativa Edile Fagitana**.
 
 ---
 
-## 🚀 GUIDA AL DEPLOY COMPLETA
+## GUIDA AL DEPLOY COMPLETA
 
 ### 1. PREREQUISITI
 - Account [Supabase](https://supabase.com) (gratuito)
@@ -14,7 +14,7 @@ Applicazione web per la gestione quotidiana dei cantieri della **Cooperativa Edi
 
 ---
 
-## 📦 PARTE 1 – SUPABASE (Database)
+## PARTE 1 – SUPABASE (Database)
 
 ### Step 1.1 – Crea il progetto
 1. Vai su **supabase.com** → "New Project"
@@ -27,7 +27,7 @@ Applicazione web per la gestione quotidiana dei cantieri della **Cooperativa Edi
 1. Nel pannello Supabase → **SQL Editor** → "New Query"
 2. Copia tutto il contenuto del file `src/lib/supabase.js` (dal commento in poi)
 3. Incollalo e clicca **Run**
-4. ✅ Vedrai 6 tabelle create + 7 operai inseriti
+4. Vedrai 6 tabelle create + 7 operai inseriti
 
 ### Step 1.3 – Crea gli utenti (login)
 1. **Authentication** → **Users** → "Invite user"
@@ -42,7 +42,7 @@ Applicazione web per la gestione quotidiana dei cantieri della **Cooperativa Edi
 
 ---
 
-## 📁 PARTE 2 – SETUP LOCALE
+## PARTE 2 – SETUP LOCALE
 
 ```bash
 # Entra nella cartella del progetto
@@ -65,7 +65,7 @@ npm start
 
 ---
 
-## ☁️ PARTE 3 – DEPLOY SU VERCEL
+## PARTE 3 – DEPLOY SU VERCEL
 
 ### Step 3.1 – Pubblica su GitHub
 ```bash
@@ -96,7 +96,7 @@ In Vercel, prima di fare Deploy:
 ### Step 3.4 – Deploy!
 - Clicca **Deploy**
 - Aspetta ~2 minuti
-- ✅ La tua app è online su: `https://fagitana-cantieri.vercel.app`
+- La tua app è online su: `https://fagitana-cantieri.vercel.app`
 
 ### Step 3.5 – Dominio personalizzato (opzionale)
 1. Acquista dominio es. `fagitana-cantieri.it` da Aruba o Namecheap
@@ -109,7 +109,7 @@ Ogni volta che modifichi il codice e fai `git push`, Vercel ri-deploya automatic
 
 ---
 
-## 📱 PARTE 4 – L'APP SUGLI SMARTPHONE (SENZA APP STORE)
+## PARTE 4 – L'APP SUGLI SMARTPHONE (SENZA APP STORE)
 
 ### Metodo immediato: PWA (Progressive Web App)
 
@@ -119,26 +119,26 @@ L'app è già configurata come PWA. Gli operai possono **installarla sul telefon
 1. Apri l'app nel browser Chrome
 2. Compare automaticamente un banner "Aggiungi a schermata Home"
 3. Oppure: Menu Chrome (3 puntini) → **"Aggiungi a schermata Home"**
-4. L'app appare come icona sul desktop del telefono ✅
+4. L'app appare come icona sul desktop del telefono
 5. Si apre a schermo intero, senza barra del browser
 
 #### Su iPhone (Safari):
 1. Apri l'app in Safari
 2. Tocca il pulsante **Condividi** (quadrato con freccia su)
 3. Scorri e tocca **"Aggiungi a schermata Home"**
-4. Dai un nome ("Fagitana") e tocca "Aggiungi" ✅
+4. Dai un nome ("Fagitana") e tocca "Aggiungi"
 5. L'app appare come icona e si apre a schermo intero
 
 **Vantaggi PWA:**
-- ✅ Funziona anche con connessione scarsa
-- ✅ Si installa in 10 secondi
-- ✅ Aggiornamenti automatici (basta aggiornare il codice)
-- ✅ Zero costi di pubblicazione
-- ✅ Perfetta per uso aziendale interno
+- Funziona anche con connessione scarsa
+- Si installa in 10 secondi
+- Aggiornamenti automatici (basta aggiornare il codice)
+- Zero costi di pubblicazione
+- Perfetta per uso aziendale interno
 
 ---
 
-## 📲 PARTE 5 – PUBBLICAZIONE NEGLI APP STORE (Fase futura)
+## PARTE 5 – PUBBLICAZIONE NEGLI APP STORE (Fase futura)
 
 Quando vuoi una vera app nativa negli store, ci sono due strade:
 
@@ -197,7 +197,7 @@ Riscrivere l'app in React Native dà più controllo sulle funzionalità native (
 
 ---
 
-## 🗂️ STRUTTURA DEL PROGETTO
+## STRUTTURA DEL PROGETTO
 
 ```
 fagitana-app/
@@ -227,7 +227,7 @@ fagitana-app/
 
 ---
 
-## 🔒 SICUREZZA
+## SICUREZZA
 
 - **Autenticazione**: gestita da Supabase Auth (email + password)
 - **Row Level Security**: ogni tabella accetta solo richieste da utenti autenticati
@@ -236,7 +236,7 @@ fagitana-app/
 
 ---
 
-## 🛠️ AGGIUNGERE FUNZIONALITÀ IN FUTURO
+## AGGIUNGERE FUNZIONALITÀ IN FUTURO
 
 Il codice è strutturato per permettere aggiunte facili:
 
@@ -247,7 +247,7 @@ Il codice è strutturato per permettere aggiunte facili:
 
 ---
 
-## 📞 SUPPORTO
+## SUPPORTO
 
 Per problemi tecnici:
 - **Supabase docs**: docs.supabase.com
