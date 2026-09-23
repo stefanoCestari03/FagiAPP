@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import TutorialCard from '../components/TutorialCard'
 
-const METEO_OPT = ['Sole','Nuvoloso','Pioggia','Neve','Vento forte']
+const METEO_OPT = ['☀️ Sole','⛅ Nuvoloso','🌧️ Pioggia','❄️ Neve','💨 Vento forte']
 
 function Toast({ msg, onDone }) {
   useEffect(() => { const t = setTimeout(onDone, 3000); return () => clearTimeout(t) }, [onDone])
@@ -25,7 +25,7 @@ export default function NuovaGiornata() {
   const [cantiereId, setCantiereId] = useState('')
   const [data, setData]             = useState(initialData)
   const [fase, setFase]             = useState('')
-  const [meteo, setMeteo]           = useState('Sole')
+  const [meteo, setMeteo]           = useState('☀️ Sole')
   const [oraInizio, setOraInizio]   = useState('07:30')
   const [oraFine, setOraFine]       = useState('17:30')
   const [oraPausaI, setOraPausaI]   = useState('12:00')
@@ -92,7 +92,7 @@ export default function NuovaGiornata() {
       setCantiereId(g.cantiere_id)
       setData(g.data)
       setFase(g.fase || '')
-      setMeteo(g.meteo || 'Sole')
+      setMeteo(g.meteo || '☀️ Sole')
       setOraInizio(g.ora_inizio?.slice(0,5) || '07:30')
       setOraFine(g.ora_fine?.slice(0,5) || '17:30')
       setOraPausaI(g.ora_pausa_inizio?.slice(0,5) || '12:00')

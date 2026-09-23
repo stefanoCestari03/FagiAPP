@@ -92,6 +92,7 @@ export default function Dashboard() {
           ) : (
             recenti.map(g => (
               <div key={g.id} className="cantiere-row" onClick={() => navigate(`/registrazione/${g.id}`)}>
+                {g.meteo && <div style={{ fontSize: 24 }}>{g.meteo.split(' ')[0]}</div>}
                 <div style={{ flex: 1 }}>
                   <div className="cantiere-name">{g.cantieri?.nome || '–'}</div>
                   <div className="cantiere-addr">{g.cantieri?.comune} · {g.fase || '–'}</div>
